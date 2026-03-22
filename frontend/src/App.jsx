@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://localhost:8080/api";
+const TEMPLATE_BASE_URL = "http://localhost:8080/templates";
 
 function pretty(value) {
   return JSON.stringify(value, null, 2);
@@ -152,6 +153,12 @@ export default function App() {
   }
 
   const statusClass = status.type ? `status-message ${status.type}` : "status-message";
+  const templates = [
+    { id: "classic", title: "Классический", description: "Строгий стиль для формальных вакансий." },
+    { id: "modern", title: "Современный", description: "Аккуратный макет с визуальными акцентами." },
+    { id: "creative", title: "Креативный", description: "Яркий дизайн для творческих направлений." },
+    { id: "professional", title: "Профессиональный", description: "Деловой шаблон с расширенными блоками." },
+  ];
 
   return (
     <div className="container">
@@ -161,6 +168,25 @@ export default function App() {
       </header>
 
       <div className={statusClass}>{status.message}</div>
+
+      <section className="demo-section">
+        <h2>Выбор шаблона резюме</h2>
+        <div className="template-grid">
+          {templates.map((template) => (
+            <button
+              key={template.id}
+              type="button"
+              className="template-card"
+              onClick={() => {
+                window.location.href = `${TEMPLATE_BASE_URL}/${template.id}.html`;
+              }}
+            >
+              <strong>{template.title}</strong>
+              <span>{template.description}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className="demo-section">
         <h2>Регистрация</h2>

@@ -74,6 +74,41 @@ header h1 {
   font-size: 1.4em;
 }
 
+.template-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.template-card {
+  border: 1px solid #d9e0ff;
+  background: #fff;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.template-card strong {
+  color: #3f51b5;
+  font-size: 1rem;
+}
+
+.template-card span {
+  color: #555;
+  font-size: 0.92rem;
+}
+
+.template-card:hover {
+  border-color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(102, 126, 234, 0.2);
+}
+
 .btn {
   background: #667eea;
   color: white;

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request, session, send_from_directory, abort
 from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -21,6 +21,14 @@ DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'port': os.getenv('DB_PORT', '5432')
 }
+
+ALLOWED_RESUME_TEMPLATES = {
+    'classic.html',
+    'modern.html',
+    'creative.html',
+    'professional.html',
+}
+TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 
 def get_db_connection():
     conn = psycopg2.connect(**DB_CONFIG)
@@ -233,6 +241,15 @@ def me():
 def logout():
     session.clear()
     return jsonify({'message': 'Вы вышли из аккаунта'}), 200
+
+@app.route('/templates/<path:template_name>', methods=['GET'])
+def serve_template(template_name):
+    normalized_name = template_name.strip().lower()
+    if not normalized_name.endswith('.html'):
+        normalized_name = f'{normalized_name}.html'
+    if normalized_name not in ALLOWED_RESUME_TEMPLATES:
+        abort(404)
+    return send_from_directory(TEMPLATES_DIR, normalized_name)
 
 if __name__ == '__main__':
     if not wait_for_db():
