@@ -1,4 +1,6 @@
-# npm / yarn (node_modules, dist, .env — в корневом .gitignore)
+# npm / yarn
+node_modules/
+dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
