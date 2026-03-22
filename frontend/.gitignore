@@ -1,25 +1,11 @@
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-
-# Logs
-*.log
+# npm / yarn (node_modules, dist, .env — в корневом .gitignore)
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea/
-.DS_Store
+
 *.suo
 *.ntvs*
 *.njsproj

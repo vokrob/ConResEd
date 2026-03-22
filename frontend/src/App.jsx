@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 
-const API_BASE_URL = "http://localhost:8080/api";
-const TEMPLATE_BASE_URL = "http://localhost:8080/templates";
+const API_BASE_URL = "/api";
+const TEMPLATE_BASE_URL = "/templates";
 
-function pretty(value) {
-  return JSON.stringify(value, null, 2);
+function userInitials(user) {
+  const name = (user.full_name || user.email || "?").trim();
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase().slice(0, 2);
+  }
+  return name.slice(0, 2).toUpperCase();
 }
 
 export default function App() {
@@ -13,11 +18,11 @@ export default function App() {
     register: false,
     login: false,
     logout: false,
+    session: true,
   });
 
-  const [registerResult, setRegisterResult] = useState("");
-  const [loginResult, setLoginResult] = useState("");
-  const [meResult, setMeResult] = useState("");
+  const [user, setUser] = useState(null);
+  const [authMode, setAuthMode] = useState("login");
 
   const [registerForm, setRegisterForm] = useState({
     fullName: "",
@@ -67,12 +72,11 @@ export default function App() {
         throw new Error(data.error || "Ошибка регистрации");
       }
 
-      setRegisterResult(pretty(data));
-      setStatus({ message: "Регистрация выполнена успешно", type: "success" });
+      setStatus({ message: "Регистрация выполнена успешно. Войдите в аккаунт.", type: "success" });
       setLoginForm((prev) => ({ ...prev, email }));
       setRegisterForm({ fullName: "", email: "", password: "" });
+      setAuthMode("login");
     } catch (error) {
-      setRegisterResult(`Error: ${error.message}`);
       setStatus({ message: error.message || "Ошибка регистрации", type: "error" });
     } finally {
       setLoading((prev) => ({ ...prev, register: false }));
@@ -102,12 +106,10 @@ export default function App() {
         throw new Error(data.error || "Ошибка входа");
       }
 
-      setLoginResult(pretty(data));
-      setMeResult(pretty(data.user));
+      setUser(data.user);
       setStatus({ message: "Вход выполнен успешно", type: "success" });
       setLoginForm({ email: "", password: "" });
     } catch (error) {
-      setLoginResult(`Error: ${error.message}`);
       setStatus({ message: error.message || "Ошибка входа", type: "error" });
     } finally {
       setLoading((prev) => ({ ...prev, login: false }));
@@ -115,6 +117,7 @@ export default function App() {
   }
 
   async function fetchCurrentUser() {
+    setLoading((prev) => ({ ...prev, session: true }));
     try {
       const response = await fetch(`${API_BASE_URL}/me`, {
         method: "GET",
@@ -122,11 +125,14 @@ export default function App() {
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Нет активной сессии");
+        setUser(null);
+        return;
       }
-      setMeResult(pretty(data.user));
+      setUser(data.user);
     } catch {
-      setMeResult(pretty({ message: "Пользователь не авторизован" }));
+      setUser(null);
+    } finally {
+      setLoading((prev) => ({ ...prev, session: false }));
     }
   }
 
@@ -142,8 +148,8 @@ export default function App() {
         throw new Error(data.error || "Ошибка выхода");
       }
 
-      setLoginResult(pretty({ message: "Сессия завершена" }));
-      setMeResult(pretty({ message: "Пользователь не авторизован" }));
+      setUser(null);
+      setAuthMode("login");
       setStatus({ message: "Вы вышли из аккаунта", type: "success" });
     } catch (error) {
       setStatus({ message: error.message || "Ошибка выхода", type: "error" });
@@ -153,30 +159,192 @@ export default function App() {
   }
 
   const statusClass = status.type ? `status-message ${status.type}` : "status-message";
+
   const templates = [
-    { id: "classic", title: "Классический", description: "Строгий стиль для формальных вакансий." },
-    { id: "modern", title: "Современный", description: "Аккуратный макет с визуальными акцентами." },
-    { id: "creative", title: "Креативный", description: "Яркий дизайн для творческих направлений." },
-    { id: "professional", title: "Профессиональный", description: "Деловой шаблон с расширенными блоками." },
+    {
+      id: "classic",
+      variant: "classic",
+      title: "Классический",
+      description: "Строгий стиль для формальных вакансий.",
+    },
+    {
+      id: "modern",
+      variant: "modern",
+      title: "Современный",
+      description: "Аккуратный макет с визуальными акцентами.",
+    },
+    {
+      id: "creative",
+      variant: "creative",
+      title: "Креативный",
+      description: "Яркий дизайн для творческих направлений.",
+    },
+    {
+      id: "professional",
+      variant: "professional",
+      title: "Профессиональный",
+      description: "Деловой шаблон с расширенными блоками.",
+    },
   ];
+
+  if (loading.session) {
+    return (
+      <div className="auth-page">
+        <div className="auth-panel">
+          <header className="auth-brand">
+            <h1>ConResEd</h1>
+            <p className="subtitle">Конвертер и редактор резюме</p>
+          </header>
+          <div className="auth-card">
+            <div className="session-loading">
+              <div className="loading-spinner" role="status" aria-label="Загрузка" />
+              <span>Загрузка…</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="auth-page">
+        <div className="auth-panel">
+          <header className="auth-brand">
+            <h1>ConResEd</h1>
+            <p className="subtitle">Конвертер и редактор резюме</p>
+          </header>
+
+          <div className="auth-card">
+            <div className={statusClass}>{status.message}</div>
+
+            {authMode === "login" ? (
+              <section className="auth-section">
+                <h2 className="auth-heading">Вход</h2>
+                <form className="form-grid" onSubmit={loginUser}>
+                  <label htmlFor="login-email">Email</label>
+                  <input
+                    id="login-email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={loginForm.email}
+                    onChange={(e) => setLoginForm((prev) => ({ ...prev, email: e.target.value }))}
+                  />
+
+                  <label htmlFor="login-password">Пароль</label>
+                  <input
+                    id="login-password"
+                    type="password"
+                    required
+                    minLength={8}
+                    autoComplete="current-password"
+                    value={loginForm.password}
+                    onChange={(e) =>
+                      setLoginForm((prev) => ({ ...prev, password: e.target.value }))
+                    }
+                  />
+
+                  <button className="btn btn-primary btn-block" type="submit" disabled={loading.login}>
+                    {loading.login ? "Входим…" : "Войти"}
+                  </button>
+                </form>
+              </section>
+            ) : (
+              <section className="auth-section">
+                <h2 className="auth-heading">Регистрация</h2>
+                <form className="form-grid" onSubmit={registerUser}>
+                  <label htmlFor="full-name">ФИО</label>
+                  <input
+                    id="full-name"
+                    type="text"
+                    required
+                    minLength={2}
+                    autoComplete="name"
+                    value={registerForm.fullName}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({ ...prev, fullName: e.target.value }))
+                    }
+                  />
+
+                  <label htmlFor="email">Email</label>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={registerForm.email}
+                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, email: e.target.value }))}
+                  />
+
+                  <label htmlFor="password">Пароль</label>
+                  <input
+                    id="password"
+                    type="password"
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    value={registerForm.password}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({ ...prev, password: e.target.value }))
+                    }
+                  />
+
+                  <button className="btn btn-success btn-block" type="submit" disabled={loading.register}>
+                    {loading.register ? "Регистрируем…" : "Зарегистрироваться"}
+                  </button>
+                </form>
+              </section>
+            )}
+          </div>
+
+          <footer className="auth-footer">
+            {authMode === "login" ? (
+              <button type="button" className="auth-footer-link" onClick={() => setAuthMode("register")}>
+                Нет аккаунта? Зарегистрироваться
+              </button>
+            ) : (
+              <button type="button" className="auth-footer-link" onClick={() => setAuthMode("login")}>
+                Уже есть аккаунт? Войти
+              </button>
+            )}
+          </footer>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
-      <header>
-        <h1>ConResEd</h1>
-        <p className="subtitle">Конвертер и редактор резюме</p>
+      <header className="app-header-bar">
+        <div>
+          <h1>ConResEd</h1>
+          <p className="subtitle">Выбор шаблона резюме</p>
+        </div>
+        <div className="user-bar">
+          <div className="user-pill" title={user.email}>
+            <span className="user-avatar" aria-hidden="true">
+              {userInitials(user)}
+            </span>
+            <span className="user-email">{user.full_name || user.email}</span>
+          </div>
+          <button className="btn btn-danger btn-compact" onClick={logoutUser} disabled={loading.logout}>
+            {loading.logout ? "Выход…" : "Выйти"}
+          </button>
+        </div>
       </header>
 
       <div className={statusClass}>{status.message}</div>
 
-      <section className="demo-section">
-        <h2>Выбор шаблона резюме</h2>
+      <section className="demo-section template-section">
+        <h2>Шаблоны резюме</h2>
         <div className="template-grid">
           {templates.map((template) => (
             <button
               key={template.id}
               type="button"
               className="template-card"
+              data-variant={template.variant}
               onClick={() => {
                 window.location.href = `${TEMPLATE_BASE_URL}/${template.id}.html`;
               }}
@@ -186,88 +354,6 @@ export default function App() {
             </button>
           ))}
         </div>
-      </section>
-
-      <section className="demo-section">
-        <h2>Регистрация</h2>
-        <form className="form-grid" onSubmit={registerUser}>
-          <label htmlFor="full-name">ФИО</label>
-          <input
-            id="full-name"
-            type="text"
-            required
-            minLength={2}
-            value={registerForm.fullName}
-            onChange={(e) =>
-              setRegisterForm((prev) => ({ ...prev, fullName: e.target.value }))
-            }
-          />
-
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={registerForm.email}
-            onChange={(e) => setRegisterForm((prev) => ({ ...prev, email: e.target.value }))}
-          />
-
-          <label htmlFor="password">Пароль</label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={8}
-            value={registerForm.password}
-            onChange={(e) =>
-              setRegisterForm((prev) => ({ ...prev, password: e.target.value }))
-            }
-          />
-
-          <button className="btn btn-success" type="submit" disabled={loading.register}>
-            {loading.register ? "Регистрируем..." : "Зарегистрироваться"}
-          </button>
-        </form>
-        {registerResult && <div className="result-box">{registerResult}</div>}
-      </section>
-
-      <section className="demo-section">
-        <h2>Вход</h2>
-        <form className="form-grid" onSubmit={loginUser}>
-          <label htmlFor="login-email">Email</label>
-          <input
-            id="login-email"
-            type="email"
-            required
-            value={loginForm.email}
-            onChange={(e) => setLoginForm((prev) => ({ ...prev, email: e.target.value }))}
-          />
-
-          <label htmlFor="login-password">Пароль</label>
-          <input
-            id="login-password"
-            type="password"
-            required
-            minLength={8}
-            value={loginForm.password}
-            onChange={(e) =>
-              setLoginForm((prev) => ({ ...prev, password: e.target.value }))
-            }
-          />
-
-          <button className="btn btn-primary" type="submit" disabled={loading.login}>
-            {loading.login ? "Входим..." : "Войти"}
-          </button>
-        </form>
-        {loginResult && <div className="result-box">{loginResult}</div>}
-      </section>
-
-      <section className="demo-section">
-        <h2>Текущая сессия</h2>
-        <button className="btn btn-danger" onClick={logoutUser} disabled={loading.logout}>
-          {loading.logout ? "Выходим..." : "Выйти"}
-        </button>
-        {meResult && <div className="result-box">{meResult}</div>}
       </section>
     </div>
   );
