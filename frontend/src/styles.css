@@ -110,31 +110,35 @@ body {
   letter-spacing: -0.02em;
 }
 
-.template-grid {
-  display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+.template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: min(70vh, 680px);
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
-.template-card {
+.template-row {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--line);
   background: #fff;
   border-radius: 14px;
-  padding: 18px 16px 16px;
+  padding: 14px 16px;
   text-align: left;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   transition:
     transform 0.22s ease,
     box-shadow 0.22s ease,
     border-color 0.22s ease;
 }
 
-.template-card::before {
+.template-row::before {
   content: "";
   position: absolute;
   left: 0;
@@ -145,43 +149,69 @@ body {
   opacity: 0.95;
 }
 
-.template-card[data-variant="classic"]::before {
+.template-row[data-variant="classic"]::before {
   background: linear-gradient(90deg, #64748b, #475569);
 }
-.template-card[data-variant="modern"]::before {
+.template-row[data-variant="modern"]::before {
   background: linear-gradient(90deg, var(--accent), #a855f7);
 }
-.template-card[data-variant="creative"]::before {
+.template-row[data-variant="creative"]::before {
   background: linear-gradient(90deg, #f97316, #ec4899);
 }
-.template-card[data-variant="professional"]::before {
+.template-row[data-variant="professional"]::before {
   background: linear-gradient(90deg, #0ea5e9, var(--mint));
 }
 
-.template-card strong {
+.template-row-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.template-row strong {
   color: var(--ink);
   font-size: 1.02rem;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-.template-card span {
+.template-row span {
   color: var(--ink-muted);
   font-size: 0.88rem;
   line-height: 1.45;
   font-weight: 500;
 }
 
-.template-card:hover {
-  border-color: rgba(99, 102, 241, 0.35);
-  transform: translateY(-3px);
-  box-shadow:
-    0 12px 32px rgba(99, 102, 241, 0.12),
-    0 4px 12px rgba(15, 23, 42, 0.06);
+.template-row-action {
+  color: var(--accent-deep) !important;
+  white-space: nowrap;
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
 }
 
-.template-card:active {
+.template-row:hover {
+  border-color: rgba(99, 102, 241, 0.35);
   transform: translateY(-1px);
+  box-shadow:
+    0 6px 20px rgba(99, 102, 241, 0.12),
+    0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.template-row:active {
+  transform: translateY(-1px);
+}
+
+.template-open-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
 }
 
 .btn {
