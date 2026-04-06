@@ -5,6 +5,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2 import IntegrityError
 import os
 import time
+import json
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -69,6 +70,19 @@ def init_db():
             full_name TEXT NOT NULL,
             password_hash TEXT NOT NULL,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS saved_resumes (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            template_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            payload JSONB NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
         """
     )
@@ -241,6 +255,203 @@ def me():
 def logout():
     session.clear()
     return jsonify({'message': 'Вы вышли из аккаунта'}), 200
+
+@app.route('/api/resumes', methods=['GET'])
+def list_resumes():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Не авторизован'}), 401
+    conn = None
+    cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute(
+            """
+            SELECT id, template_id, title, created_at, updated_at
+            FROM saved_resumes
+            WHERE user_id = %s
+            ORDER BY updated_at DESC, id DESC;
+            """,
+            (user_id,)
+        )
+        rows = cur.fetchall()
+        return jsonify({'items': rows}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+@app.route('/api/resumes', methods=['POST'])
+def save_resume():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Не авторизован'}), 401
+    payload = request.get_json(silent=True) or {}
+    template_id = (payload.get('template_id') or '').strip().lower()
+    title = (payload.get('title') or '').strip()
+    data = payload.get('payload')
+    if template_id not in {'classic', 'modern', 'creative', 'professional'}:
+        return jsonify({'error': 'Некорректный template_id'}), 400
+    if not title:
+        title = f"Резюме ({template_id})"
+    if not isinstance(data, dict):
+        return jsonify({'error': 'Некорректный payload'}), 400
+    conn = None
+    cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute(
+            """
+            SELECT 1
+            FROM saved_resumes
+            WHERE user_id = %s AND title = %s
+            LIMIT 1;
+            """,
+            (user_id, title)
+        )
+        if cur.fetchone():
+            return jsonify({'error': 'Резюме с таким названием уже существует'}), 409
+        cur.execute(
+            """
+            INSERT INTO saved_resumes (user_id, template_id, title, payload)
+            VALUES (%s, %s, %s, %s::jsonb)
+            RETURNING id, template_id, title, created_at, updated_at;
+            """,
+            (user_id, template_id, title, json.dumps(data, ensure_ascii=False))
+        )
+        row = cur.fetchone()
+        conn.commit()
+        return jsonify({'item': row, 'message': 'Шаблон сохранен'}), 201
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+@app.route('/api/resumes/<int:resume_id>', methods=['GET'])
+def get_resume(resume_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Не авторизован'}), 401
+    conn = None
+    cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute(
+            """
+            SELECT id, template_id, title, payload, created_at, updated_at
+            FROM saved_resumes
+            WHERE id = %s AND user_id = %s
+            LIMIT 1;
+            """,
+            (resume_id, user_id)
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify({'error': 'Шаблон не найден'}), 404
+        return jsonify({'item': row}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+@app.route('/api/resumes/<int:resume_id>', methods=['PUT'])
+def update_resume(resume_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Не авторизован'}), 401
+    payload = request.get_json(silent=True) or {}
+    title = (payload.get('title') or '').strip()
+    data = payload.get('payload')
+    if not title:
+        return jsonify({'error': 'Название обязательно'}), 400
+    if not isinstance(data, dict):
+        return jsonify({'error': 'Некорректный payload'}), 400
+    conn = None
+    cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute(
+            """
+            SELECT 1
+            FROM saved_resumes
+            WHERE user_id = %s AND title = %s AND id <> %s
+            LIMIT 1;
+            """,
+            (user_id, title, resume_id)
+        )
+        if cur.fetchone():
+            return jsonify({'error': 'Резюме с таким названием уже существует'}), 409
+        cur.execute(
+            """
+            UPDATE saved_resumes
+            SET title = %s, payload = %s::jsonb, updated_at = NOW()
+            WHERE id = %s AND user_id = %s
+            RETURNING id, template_id, title, created_at, updated_at;
+            """,
+            (title, json.dumps(data, ensure_ascii=False), resume_id, user_id)
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify({'error': 'Шаблон не найден'}), 404
+        conn.commit()
+        return jsonify({'item': row, 'message': 'Шаблон обновлен'}), 200
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+@app.route('/api/resumes/<int:resume_id>', methods=['DELETE'])
+def delete_resume(resume_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Не авторизован'}), 401
+    conn = None
+    cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute(
+            """
+            DELETE FROM saved_resumes
+            WHERE id = %s AND user_id = %s
+            RETURNING id;
+            """,
+            (resume_id, user_id)
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify({'error': 'Шаблон не найден'}), 404
+        conn.commit()
+        return jsonify({'message': 'Шаблон удален'}), 200
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 @app.route('/templates/<path:template_name>', methods=['GET'])
 def serve_template(template_name):
