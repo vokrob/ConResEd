@@ -23,6 +23,7 @@ export default function App() {
 
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState("login");
+  const [savedResumes, setSavedResumes] = useState([]);
 
   const [registerForm, setRegisterForm] = useState({
     fullName: "",
@@ -44,6 +45,14 @@ export default function App() {
   useEffect(() => {
     fetchCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchSavedResumes();
+    } else {
+      setSavedResumes([]);
+    }
+  }, [user]);
 
   async function registerUser(event) {
     event.preventDefault();
@@ -155,6 +164,34 @@ export default function App() {
       setStatus({ message: error.message || "Ошибка выхода", type: "error" });
     } finally {
       setLoading((prev) => ({ ...prev, logout: false }));
+    }
+  }
+
+  async function fetchSavedResumes() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/resumes`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) return;
+      setSavedResumes(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      setSavedResumes([]);
+    }
+  }
+
+  async function deleteSavedResume(id) {
+    if (!window.confirm("Удалить сохраненное резюме?")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/resumes/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) return;
+      setSavedResumes((prev) => prev.filter((item) => item.id !== id));
+    } catch {
+      // no-op
     }
   }
 
@@ -338,21 +375,64 @@ export default function App() {
 
       <section className="demo-section template-section">
         <h2>Шаблоны резюме</h2>
-        <div className="template-grid">
+        <div className="template-list" role="list">
           {templates.map((template) => (
             <button
               key={template.id}
               type="button"
-              className="template-card"
+              className="template-row"
               data-variant={template.variant}
+              role="listitem"
               onClick={() => {
-                window.location.href = `${TEMPLATE_BASE_URL}/${template.id}.html`;
+                window.location.href = `${TEMPLATE_BASE_URL}/${template.id}.html?blank=1`;
               }}
             >
-              <strong>{template.title}</strong>
-              <span>{template.description}</span>
+              <div className="template-row-content">
+                <strong>{template.title}</strong>
+                <span>{template.description}</span>
+              </div>
+              <span className="template-row-action" aria-hidden="true">Открыть</span>
             </button>
           ))}
+        </div>
+      </section>
+
+      <section className="demo-section template-section" style={{ marginTop: 16 }}>
+        <h2>Сохраненные шаблоны</h2>
+        <div className="template-list" role="list">
+          {savedResumes.length === 0 ? (
+            <div className="template-row" role="listitem">
+              <div className="template-row-content">
+                <strong>Пока нет сохраненных шаблонов</strong>
+                <span>Откройте шаблон, заполните и нажмите "Сохранить в личный кабинет".</span>
+              </div>
+            </div>
+          ) : (
+            savedResumes.map((item) => (
+              <div key={item.id} className="template-row" role="listitem">
+                <button
+                  type="button"
+                  className="template-open-btn"
+                  onClick={() => {
+                    window.location.href = `${TEMPLATE_BASE_URL}/${item.template_id}.html?resumeId=${item.id}`;
+                  }}
+                >
+                  <div className="template-row-content">
+                    <strong>{item.title}</strong>
+                    <span>{item.template_id}</span>
+                  </div>
+                  <span className="template-row-action" aria-hidden="true">Открыть</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger btn-compact"
+                  onClick={() => deleteSavedResume(item.id)}
+                >
+                  Удалить
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </section>
     </div>
