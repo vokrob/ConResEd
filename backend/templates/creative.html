@@ -110,10 +110,9 @@
         .name {
             font-size: 38px;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            background: none;
+            -webkit-text-fill-color: #111;
+            color: #111;
             line-height: 1.1;
             display: flex;
             flex-wrap: wrap;
@@ -145,10 +144,13 @@
             display: flex;
             gap: 30px;
             margin-top: 30px;
+            flex-wrap: wrap;
         }
 
         .stat-item {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .stat-number {
@@ -162,6 +164,7 @@
             color: #666;
             text-transform: uppercase;
             letter-spacing: 1px;
+            white-space: nowrap;
         }
 
         .content {
@@ -429,6 +432,72 @@
                 display: none;
             }
         }
+
+        body {
+            background: #fff;
+            padding: 16px;
+        }
+
+        .resume-container,
+        .header,
+        .experience-item,
+        .skill-item,
+        .highlight-box {
+            background: #fff !important;
+            color: #111 !important;
+        }
+
+        .resume-container {
+            max-width: 210mm;
+            min-height: 297mm;
+            border-radius: 0;
+        }
+
+        .template-nav {
+            max-width: 210mm;
+        }
+
+        .editable-field {
+            color: #111;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .fio-field {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .section, .experience-item {
+            break-inside: avoid-page;
+            page-break-inside: avoid;
+        }
+        .print-priority-high { break-inside: avoid-page; page-break-inside: avoid; }
+        .print-priority-medium { break-inside: avoid-page; page-break-inside: avoid; }
+        .print-priority-low { break-inside: auto; page-break-inside: auto; }
+
+        .item-remove-btn {
+            margin-top: 8px;
+            border: none;
+            background: #f3f4f6;
+            color: #7f1d1d;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+
+        @media print {
+            .template-nav, .experience-controls, .item-remove-btn {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -438,10 +507,12 @@
         <a href="http://localhost:8080/templates/modern.html">Современный</a>
         <a href="http://localhost:8080/templates/creative.html">Креативный</a>
         <a href="http://localhost:8080/templates/professional.html">Профессиональный</a>
+        <button type="button" onclick="saveToCabinet()" style="background:#166534;">Сохранить в кабинет</button>
+        <button type="button" onclick="exportToPdf()" style="background:#1d4ed8;">Скачать PDF (A4)</button>
         <button type="button" onclick="clearAllFields()">Очистить все поля</button>
     </nav>
     <div class="resume-container">
-        <header class="header">
+        <header class="header print-priority-high">
             <div class="header-content">
                 <div class="avatar-placeholder">📷 Фото</div>
                 <div>
@@ -458,16 +529,16 @@
                 
                 <div class="stats-row">
                     <div class="stat-item">
-                        <div class="stat-number editable-field" data-placeholder="0+" contenteditable="true"></div>
-                        <div class="stat-label editable-field" data-placeholder="Лет опыта" contenteditable="true"></div>
+                        <div class="stat-label">Лет опыта</div>
+                        <div class="stat-number editable-field" data-placeholder="" contenteditable="true"></div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number editable-field" data-placeholder="0+" contenteditable="true"></div>
-                        <div class="stat-label editable-field" data-placeholder="Проектов" contenteditable="true"></div>
+                        <div class="stat-label">Проектов</div>
+                        <div class="stat-number editable-field" data-placeholder="" contenteditable="true"></div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number editable-field" data-placeholder="0+" contenteditable="true"></div>
-                        <div class="stat-label editable-field" data-placeholder="Клиентов" contenteditable="true"></div>
+                        <div class="stat-label">Клиентов</div>
+                        <div class="stat-number editable-field" data-placeholder="" contenteditable="true"></div>
                     </div>
                 </div>
             </div>
@@ -475,7 +546,7 @@
 
         <div class="content">
             <div class="left-column">
-                <div class="section">
+                <div class="section print-priority-high">
                     <h2 class="section-title">Связаться</h2>
                     <div class="contact-list">
                         <div class="contact-item">
@@ -501,7 +572,7 @@
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section print-priority-medium">
                     <h2 class="section-title">Навыки</h2>
                     <div id="skills-container" class="skills-grid">
                         <div class="skill-item editable-field" data-placeholder="Навык" contenteditable="true"></div>
@@ -515,23 +586,23 @@
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section print-priority-low">
                     <h2 class="section-title">Дополнительно</h2>
                     <div class="highlight-box">
-                        <div class="editable-field" data-placeholder="Перечислите инструменты" contenteditable="true"></div>
+                        <div class="editable-field" data-placeholder="" contenteditable="true"></div>
                     </div>
                 </div>
             </div>
 
             <div class="right-column">
-                <div class="section">
+                <div class="section print-priority-high">
                     <h2 class="section-title">О себе</h2>
                     <div class="highlight-box">
                         <div class="editable-field" data-placeholder="Расскажите свою историю" contenteditable="true"></div>
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section print-priority-medium">
                     <h2 class="section-title">Опыт</h2>
                     <div id="experience-container">
                         <div class="experience-item">
@@ -549,7 +620,7 @@
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section print-priority-medium">
                     <h2 class="section-title">Образование</h2>
                     <div id="education-container">
                         <div class="experience-item">
@@ -604,6 +675,7 @@
                 container.removeChild(container.lastElementChild);
             }
             updateRemoveButton('experience');
+            saveStructure();
         }
 
         // Образование
@@ -629,6 +701,7 @@
                 container.removeChild(container.lastElementChild);
             }
             updateRemoveButton('education');
+            saveStructure();
         }
 
         // Навыки
@@ -786,7 +859,171 @@
             localStorage.removeItem(STORAGE_KEY);
         }
 
-        restoreFields();
+        function exportToPdf() {
+            window.print();
+        }
+
+        async function saveToCabinet() {
+            const params = new URLSearchParams(window.location.search);
+            const resumeId = params.get('resumeId');
+            const updateExisting = resumeId ? window.confirm('Обновить текущее сохраненное резюме?\nНажмите Отмена, чтобы сохранить как новое.') : false;
+            const title = window.prompt('Название шаблона', 'Мое резюме (creative)') || '';
+            if (!title.trim()) return;
+            saveFields();
+            saveStructure();
+            const payload = {
+                fields: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
+                structure: JSON.parse(localStorage.getItem(STRUCTURE_STORAGE_KEY) || '{}')
+            };
+            const url = updateExisting ? `/api/resumes/${resumeId}` : '/api/resumes';
+            const method = updateExisting ? 'PUT' : 'POST';
+            const response = await fetch(url, {
+                method,
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ template_id: 'creative', title, payload })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (response.ok) {
+                if (!updateExisting && result?.item?.id) {
+                    params.set('resumeId', String(result.item.id));
+                    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+                }
+                alert(updateExisting ? 'Изменения сохранены' : 'Шаблон сохранен в личный кабинет');
+            } else {
+                alert(result?.error || 'Не удалось сохранить шаблон');
+            }
+        }
+
+        function applyInputConstraints() {
+            document.querySelectorAll('.editable-field').forEach((field) => {
+                const ph = (field.getAttribute('data-placeholder') || '').toLowerCase();
+                if (['фамилия', 'имя', 'отчество'].includes(ph)) {
+                    field.classList.add('fio-field');
+                    field.dataset.singleLine = 'true';
+                    field.dataset.maxLine = '30';
+                    return;
+                }
+                if (!field.dataset.maxLine) {
+                    field.dataset.maxLine = ph.includes('навык') ? '160' : '80';
+                }
+            });
+        }
+
+        function clampContent(field) {
+            const singleLine = field.dataset.singleLine === 'true';
+            const maxLine = parseInt(field.dataset.maxLine || '80', 10);
+            let value = (field.innerText || '').replace(/\u00A0/g, ' ');
+            if (singleLine) {
+                value = value.replace(/[\r\n]+/g, ' ');
+                const normalized = value.slice(0, maxLine);
+                if (normalized !== field.innerText) field.innerText = normalized;
+                return;
+            }
+            if (!/[\r\n]/.test(value)) {
+                return;
+            }
+            const lines = value.split(/\r?\n/).map((line) => line.slice(0, maxLine));
+            const normalized = lines.join('\n');
+            if (normalized !== field.innerText) field.innerText = normalized;
+        }
+
+        function getItemSelector(container) {
+            const first = container && container.firstElementChild;
+            if (!first) return null;
+            return '.' + Array.from(first.classList)[0];
+        }
+
+        function ensureItemRemoveButtons() {
+            ['experience-container', 'education-container'].forEach((id) => {
+                const container = document.getElementById(id);
+                if (!container) return;
+                const itemSelector = getItemSelector(container);
+                if (!itemSelector) return;
+                container.querySelectorAll(itemSelector).forEach((item) => {
+                    if (item.querySelector('.item-remove-btn')) return;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'item-remove-btn';
+                    btn.textContent = 'Удалить этот блок';
+                    btn.onclick = () => {
+                        if (container.querySelectorAll(itemSelector).length > 1) {
+                            item.remove();
+                            saveFields();
+                            saveStructure();
+                        }
+                    };
+                    item.appendChild(btn);
+                });
+            });
+        }
+
+        const STRUCTURE_STORAGE_KEY = 'resume-shared-structure-v1';
+        const originalAddExperience = addExperience;
+        addExperience = function() { originalAddExperience(); ensureItemRemoveButtons(); saveStructure(); };
+        const originalAddEducation = addEducation;
+        addEducation = function() { originalAddEducation(); ensureItemRemoveButtons(); saveStructure(); };
+
+        function saveStructure() {
+            localStorage.setItem(STRUCTURE_STORAGE_KEY, JSON.stringify({
+                experience: document.getElementById('experience-container')?.children.length || 1,
+                education: document.getElementById('education-container')?.children.length || 1,
+            }));
+        }
+
+        function restoreStructure() {
+            const raw = localStorage.getItem(STRUCTURE_STORAGE_KEY);
+            if (!raw) return;
+            try {
+                const data = JSON.parse(raw);
+                while ((document.getElementById('experience-container')?.children.length || 0) < Math.max(1, Number(data.experience) || 1)) addExperience();
+                while ((document.getElementById('education-container')?.children.length || 0) < Math.max(1, Number(data.education) || 1)) addEducation();
+            } catch {}
+        }
+
+        document.addEventListener('input', (event) => {
+            if (event.target.classList && event.target.classList.contains('editable-field')) {
+                clampContent(event.target);
+                saveFields();
+                saveStructure();
+            }
+        });
+
+        async function initPageData() {
+            const params = new URLSearchParams(window.location.search);
+            const resumeId = params.get('resumeId');
+            const blank = params.get('blank') === '1';
+
+            if (resumeId) {
+                try {
+                    const response = await fetch(`/api/resumes/${resumeId}`, { credentials: 'include' });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const payload = data?.item?.payload || {};
+                        if (payload.structure) {
+                            localStorage.setItem(STRUCTURE_STORAGE_KEY, JSON.stringify(payload.structure));
+                        }
+                        if (payload.fields) {
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload.fields));
+                        }
+                    }
+                } catch {}
+                restoreStructure();
+                restoreFields();
+                return;
+            }
+
+            if (blank) {
+                return;
+            }
+
+            restoreStructure();
+            restoreFields();
+        }
+
+        applyInputConstraints();
+        ensureItemRemoveButtons();
+        initPageData();
     </script>
 </body>
 </html>
