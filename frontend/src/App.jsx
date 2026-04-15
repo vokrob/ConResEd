@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
-
-import PublicResume from "./PublicResume";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "/api";
-const TEMPLATE_BASE_URL = "/templates";
 
 function userInitials(user) {
   const name = (user.full_name || user.email || "?").trim();
@@ -15,7 +12,15 @@ function userInitials(user) {
   return name.slice(0, 2).toUpperCase();
 }
 
-function Home() {
+function buildReadonlyTemplateUrl(item) {
+  const url = new URL(`/templates/${item.template_id}`, window.location.origin);
+  url.searchParams.set("resumeId", String(item.id));
+  url.searchParams.set("readonly", "1");
+  return url.toString();
+}
+
+export default function App() {
+  const navigate = useNavigate();
   const [status, setStatus] = useState({ message: "", type: "" });
   const [loading, setLoading] = useState({
     register: false,
@@ -26,6 +31,7 @@ function Home() {
 
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState("login");
+  const [savedResumes, setSavedResumes] = useState([]);
 
   const [registerForm, setRegisterForm] = useState({
     fullName: "",
@@ -47,6 +53,14 @@ function Home() {
   useEffect(() => {
     fetchCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchSavedResumes();
+    } else {
+      setSavedResumes([]);
+    }
+  }, [user]);
 
   async function registerUser(event) {
     event.preventDefault();
@@ -158,6 +172,34 @@ function Home() {
       setStatus({ message: error.message || "Ошибка выхода", type: "error" });
     } finally {
       setLoading((prev) => ({ ...prev, logout: false }));
+    }
+  }
+
+  async function fetchSavedResumes() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/resumes`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) return;
+      setSavedResumes(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      setSavedResumes([]);
+    }
+  }
+
+  async function deleteSavedResume(id) {
+    if (!window.confirm("Удалить сохраненное резюме?")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/resumes/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) return;
+      setSavedResumes((prev) => prev.filter((item) => item.id !== id));
+    } catch {
+      // no-op
     }
   }
 
@@ -341,39 +383,79 @@ function Home() {
 
       <section className="demo-section template-section">
         <h2>Шаблоны резюме</h2>
-        <div className="template-grid">
+        <div className="template-list" role="list">
           {templates.map((template) => (
             <button
               key={template.id}
               type="button"
-              className="template-card"
+              className="template-row"
               data-variant={template.variant}
+              role="listitem"
               onClick={() => {
-                window.location.href = `${TEMPLATE_BASE_URL}/${template.id}.html`;
+                navigate(`/templates/${template.id}?blank=1`);
               }}
             >
-              <strong>{template.title}</strong>
-              <span>{template.description}</span>
+              <div className="template-row-content">
+                <strong>{template.title}</strong>
+                <span>{template.description}</span>
+              </div>
+              <span className="template-row-action" aria-hidden="true">Открыть</span>
             </button>
           ))}
         </div>
       </section>
+
+      <section className="demo-section template-section" style={{ marginTop: 16 }}>
+        <h2>Сохраненные шаблоны</h2>
+        <div className="template-list" role="list">
+          {savedResumes.length === 0 ? (
+            <div className="template-row" role="listitem">
+              <div className="template-row-content">
+                <strong>Пока нет сохраненных шаблонов</strong>
+                <span>Откройте шаблон, заполните и нажмите "Сохранить в личный кабинет".</span>
+              </div>
+            </div>
+          ) : (
+            savedResumes.map((item) => (
+              <div key={item.id} className="template-row" role="listitem">
+                <button
+                  type="button"
+                  className="template-open-btn"
+                  onClick={() => {
+                    navigate(`/templates/${item.template_id}?resumeId=${item.id}`);
+                  }}
+                >
+                  <div className="template-row-content">
+                    <strong>{item.title}</strong>
+                    <span>{item.template_id}</span>
+                  </div>
+                  <span className="template-row-action" aria-hidden="true">Открыть</span>
+                </button>
+                <a
+                  className="template-qr-link"
+                  href={buildReadonlyTemplateUrl(item)}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Открыть QR-версию шаблона"
+                >
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(buildReadonlyTemplateUrl(item))}`}
+                    alt={`QR-код для ${item.title}`}
+                    loading="lazy"
+                  />
+                </a>
+                <button
+                  type="button"
+                  className="btn btn-danger btn-compact"
+                  onClick={() => deleteSavedResume(item.id)}
+                >
+                  Удалить
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
     </div>
-  );
-}
-
-function PublicResumeRoute() {
-  const params = useParams();
-  return <PublicResume publicId={params.publicId} />;
-}
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/r/:publicId" element={<PublicResumeRoute />} />
-      </Routes>
-    </BrowserRouter>
   );
 }
