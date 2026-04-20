@@ -100,16 +100,38 @@ export function EditableField({
     lastValidValueRef.current = newText;
   };
 
-  const handleFioPaste = (e) => {
+  // Универсальная обработка вставки для всех полей
+  const handlePaste = (e) => {
     e.preventDefault();
-    const pastedText = e.clipboardData.getData("text/plain");
-    let trimmed = pastedText.replace(/\u00a0/g, " ").replace(/[\r\n]+/g, " ");
-    if (trimmed.length > maxLine) {
-      trimmed = trimmed.slice(0, maxLine);
+    // Получаем обычный текст из буфера обмена
+    let pastedText = e.clipboardData.getData("text/plain");
+    if (pastedText === undefined || pastedText === null) return;
+
+    // Для полей ФИО: заменяем переносы на пробелы и обрезаем
+    if (fio) {
+      pastedText = pastedText.replace(/\u00a0/g, " ").replace(/[\r\n]+/g, " ");
+      if (pastedText.length > maxLine) {
+        pastedText = pastedText.slice(0, maxLine);
+      }
+      pastedText = clampSingleLine(pastedText, maxLine);
+    } else if (singleLineMode) {
+      // Для однострочных полей (например, период работы)
+      pastedText = pastedText.replace(/\u00a0/g, " ").replace(/[\r\n]+/g, " ");
+      if (pastedText.length > maxLine) {
+        pastedText = pastedText.slice(0, maxLine);
+      }
+      pastedText = clampSingleLine(pastedText, maxLine);
+    } else {
+      // Для многострочных полей
+      if (pastedText.length > maxLine) {
+        pastedText = pastedText.slice(0, maxLine);
+      }
+      pastedText = clampMultiline(pastedText, maxLine);
     }
-    trimmed = clampSingleLine(trimmed, maxLine);
-    document.execCommand("insertText", false, trimmed);
-    // после вставки вызвать onChange
+
+    // Вставляем очищенный текст
+    document.execCommand("insertText", false, pastedText);
+    // Вызываем onChange с новым значением
     const el = ref.current;
     if (el) {
       const newText = el.innerText.replace(/\u00a0/g, " ").replace(/[\r\n]+/g, " ");
@@ -125,7 +147,7 @@ export function EditableField({
       data-placeholder={placeholder}
       contentEditable={!isReadOnly}
       suppressContentEditableWarning
-      onPaste={fio ? handleFioPaste : undefined}
+      onPaste={handlePaste}
       onInput={(e) => {
         if (isReadOnly) return;
         if (fio) {
