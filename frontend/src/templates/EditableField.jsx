@@ -100,6 +100,24 @@ export function EditableField({
     lastValidValueRef.current = newText;
   };
 
+  const handleFioPaste = (e) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text/plain");
+    let trimmed = pastedText.replace(/\u00a0/g, " ").replace(/[\r\n]+/g, " ");
+    if (trimmed.length > maxLine) {
+      trimmed = trimmed.slice(0, maxLine);
+    }
+    trimmed = clampSingleLine(trimmed, maxLine);
+    document.execCommand("insertText", false, trimmed);
+    // после вставки вызвать onChange
+    const el = ref.current;
+    if (el) {
+      const newText = el.innerText.replace(/\u00a0/g, " ").replace(/[\r\n]+/g, " ");
+      onChange(fieldKey, newText);
+      lastValidValueRef.current = newText;
+    }
+  };
+
   return (
     <span
       ref={ref}
@@ -107,6 +125,7 @@ export function EditableField({
       data-placeholder={placeholder}
       contentEditable={!isReadOnly}
       suppressContentEditableWarning
+      onPaste={fio ? handleFioPaste : undefined}
       onInput={(e) => {
         if (isReadOnly) return;
         if (fio) {

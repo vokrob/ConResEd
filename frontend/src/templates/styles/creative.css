@@ -189,6 +189,11 @@
   transition: all 0.2s;
   color: #212529;
   background: transparent;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .creative-template-page .editable-field:hover {
@@ -255,6 +260,8 @@
   font-weight: 700;
   color: #212529;
   font-size: 18px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .creative-template-page .item-date {
@@ -263,6 +270,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .creative-template-page .item-company {
@@ -270,12 +279,16 @@
   font-size: 14px;
   margin-bottom: 12px;
   font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .creative-template-page .item-description {
   color: #495057;
   font-size: 14px;
   line-height: 1.8;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .creative-template-page .skills-grid {
@@ -292,6 +305,8 @@
   color: #212529;
   border: 1px solid #dee2e6;
   position: relative;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .creative-template-page .skill-item .item-remove-btn {

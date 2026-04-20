@@ -180,7 +180,7 @@
   font-size: 12px;
 }
 
-/* Увеличенный шрифт для всех текстовых полей ниже шапки (на 2–3 пункта) */
+/* Увеличенный шрифт для всех текстовых полей ниже шапки, с переносом */
 .professional-template-page .editable-field {
   min-height: 20px;
   padding: 6px 8px;
@@ -190,8 +190,12 @@
   color: #333;
   background: transparent;
   width: 100%;
-  display: block;
+  display: inline-block;
   font-size: 16px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
 }
 
 .professional-template-page .editable-field:hover {
@@ -240,12 +244,16 @@
   font-weight: 700;
   color: #1e3a5f;
   font-size: 18px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .item-date {
   color: #666;
   font-size: 15px;
   font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .item-company {
@@ -253,11 +261,15 @@
   font-size: 16px;
   margin-bottom: 10px;
   font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .item-location {
   color: #888;
   font-size: 14px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .item-description {
@@ -265,6 +277,8 @@
   font-size: 16px;
   line-height: 1.7;
   margin-bottom: 10px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .achievements-list {
@@ -278,6 +292,8 @@
   margin-bottom: 6px;
   font-size: 15px;
   color: #555;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .achievements-list li::before {
@@ -319,6 +335,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .cert-item {
@@ -337,16 +355,22 @@
   color: #333;
   font-size: 15px;
   margin-bottom: 3px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .cert-org {
   color: #666;
   font-size: 14px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .cert-date {
   color: #888;
   font-size: 13px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .language-item {
@@ -363,11 +387,15 @@
   color: #333;
   font-size: 15px;
   flex: 1;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .language-level {
   color: #666;
   font-size: 14px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .professional-template-page .experience-controls {
