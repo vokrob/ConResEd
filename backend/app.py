@@ -6,6 +6,7 @@ from psycopg2 import IntegrityError
 import os
 import time
 import json
+import secrets
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -73,14 +74,51 @@ def init_db():
             template_id TEXT NOT NULL,
             title TEXT NOT NULL,
             payload JSONB NOT NULL,
+            public_token TEXT UNIQUE,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
         """
     )
+    # Backward-compatible migration for older databases
+    try:
+        cur.execute("ALTER TABLE saved_resumes ADD COLUMN IF NOT EXISTS public_token TEXT UNIQUE;")
+    except Exception:
+        pass
     conn.commit()
     cur.close()
     conn.close()
+
+def generate_public_token():
+    # Short, URL-safe, low collision risk
+    return secrets.token_urlsafe(18)
+
+def ensure_public_token_for_resume(cur, resume_id):
+    for _ in range(5):
+        token = generate_public_token()
+        try:
+            cur.execute("SAVEPOINT sp_public_token;")
+            cur.execute(
+                """
+                UPDATE saved_resumes
+                SET public_token = %s
+                WHERE id = %s AND (public_token IS NULL OR public_token = '')
+                RETURNING public_token;
+                """,
+                (token, resume_id),
+            )
+            row = cur.fetchone()
+            cur.execute("RELEASE SAVEPOINT sp_public_token;")
+            if row and row.get("public_token"):
+                return row["public_token"]
+        except IntegrityError:
+            # Token collision — retry with a new token
+            try:
+                cur.execute("ROLLBACK TO SAVEPOINT sp_public_token;")
+                cur.execute("RELEASE SAVEPOINT sp_public_token;")
+            except Exception:
+                pass
+    return None
 
 @app.route('/api/hello', methods=['GET'])
 def hello_world():
@@ -260,7 +298,7 @@ def list_resumes():
         cur = conn.cursor(cursor_factory=RealDictCursor)
         cur.execute(
             """
-            SELECT id, template_id, title, created_at, updated_at
+            SELECT id, template_id, title, public_token, created_at, updated_at
             FROM saved_resumes
             WHERE user_id = %s
             ORDER BY updated_at DESC, id DESC;
@@ -268,6 +306,16 @@ def list_resumes():
             (user_id,)
         )
         rows = cur.fetchall()
+        # Ensure every row has a public token (for legacy data)
+        updated = False
+        for r in rows:
+            if not r.get("public_token"):
+                token = ensure_public_token_for_resume(cur, r["id"])
+                if token:
+                    r["public_token"] = token
+                    updated = True
+        if updated:
+            conn.commit()
         return jsonify({'items': rows}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -286,7 +334,7 @@ def save_resume():
     template_id = (payload.get('template_id') or '').strip().lower()
     title = (payload.get('title') or '').strip()
     data = payload.get('payload')
-    if template_id not in {'classic', 'modern', 'creative', 'professional'}:
+    if template_id not in {'classic', 'modern', 'creative', 'professional', 'it'}:
         return jsonify({'error': 'Некорректный template_id'}), 400
     if not title:
         title = f"Резюме ({template_id})"
@@ -308,15 +356,38 @@ def save_resume():
         )
         if cur.fetchone():
             return jsonify({'error': 'Резюме с таким названием уже существует'}), 409
-        cur.execute(
-            """
-            INSERT INTO saved_resumes (user_id, template_id, title, payload)
-            VALUES (%s, %s, %s, %s::jsonb)
-            RETURNING id, template_id, title, created_at, updated_at;
-            """,
-            (user_id, template_id, title, json.dumps(data, ensure_ascii=False))
-        )
-        row = cur.fetchone()
+        row = None
+        for _ in range(5):
+            try:
+                cur.execute(
+                    """
+                    INSERT INTO saved_resumes (user_id, template_id, title, payload, public_token)
+                    VALUES (%s, %s, %s, %s::jsonb, %s)
+                    RETURNING id, template_id, title, public_token, created_at, updated_at;
+                    """,
+                    (user_id, template_id, title, json.dumps(data, ensure_ascii=False), generate_public_token()),
+                )
+                row = cur.fetchone()
+                break
+            except IntegrityError:
+                conn.rollback()
+                cur = conn.cursor(cursor_factory=RealDictCursor)
+                # If title uniqueness caused it — surface a clear error
+                cur.execute(
+                    """
+                    SELECT 1
+                    FROM saved_resumes
+                    WHERE user_id = %s AND title = %s
+                    LIMIT 1;
+                    """,
+                    (user_id, title),
+                )
+                if cur.fetchone():
+                    return jsonify({'error': 'Резюме с таким названием уже существует'}), 409
+                # Otherwise assume token collision and retry
+                continue
+        if not row:
+            return jsonify({'error': 'Не удалось сгенерировать публичную ссылку'}), 500
         conn.commit()
         return jsonify({'item': row, 'message': 'Шаблон сохранен'}), 201
     except Exception as e:
@@ -341,7 +412,7 @@ def get_resume(resume_id):
         cur = conn.cursor(cursor_factory=RealDictCursor)
         cur.execute(
             """
-            SELECT id, template_id, title, payload, created_at, updated_at
+            SELECT id, template_id, title, payload, public_token, created_at, updated_at
             FROM saved_resumes
             WHERE id = %s AND user_id = %s
             LIMIT 1;
@@ -351,6 +422,11 @@ def get_resume(resume_id):
         row = cur.fetchone()
         if not row:
             return jsonify({'error': 'Шаблон не найден'}), 404
+        if not row.get("public_token"):
+            token = ensure_public_token_for_resume(cur, resume_id)
+            if token:
+                row["public_token"] = token
+                conn.commit()
         return jsonify({'item': row}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -393,13 +469,17 @@ def update_resume(resume_id):
             UPDATE saved_resumes
             SET title = %s, payload = %s::jsonb, updated_at = NOW()
             WHERE id = %s AND user_id = %s
-            RETURNING id, template_id, title, created_at, updated_at;
+            RETURNING id, template_id, title, public_token, created_at, updated_at;
             """,
             (title, json.dumps(data, ensure_ascii=False), resume_id, user_id)
         )
         row = cur.fetchone()
         if not row:
             return jsonify({'error': 'Шаблон не найден'}), 404
+        if not row.get("public_token"):
+            token = ensure_public_token_for_resume(cur, resume_id)
+            if token:
+                row["public_token"] = token
         conn.commit()
         return jsonify({'item': row, 'message': 'Шаблон обновлен'}), 200
     except Exception as e:
@@ -439,6 +519,37 @@ def delete_resume(resume_id):
         if conn:
             conn.rollback()
         return jsonify({'error': str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+@app.route('/api/public/resumes/<string:token>', methods=['GET'])
+def get_public_resume(token):
+    token = (token or "").strip()
+    if not token or len(token) < 8:
+        return jsonify({"error": "Некорректный токен"}), 400
+    conn = None
+    cur = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute(
+            """
+            SELECT template_id, title, payload, updated_at
+            FROM saved_resumes
+            WHERE public_token = %s
+            LIMIT 1;
+            """,
+            (token,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "Шаблон не найден"}), 404
+        return jsonify({"item": row}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     finally:
         if cur:
             cur.close()
