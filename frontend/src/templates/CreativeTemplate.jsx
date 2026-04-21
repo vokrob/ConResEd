@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
+import { ShareQrFooter } from "./ShareQrFooter.jsx";
 import {
   creativeDescriptors,
   creativeExpBase,
@@ -13,7 +14,7 @@ import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import "./styles/creative.css";
 
 export default function CreativeTemplate() {
-  const ctrl = useResumeTemplateController();
+  const ctrl = useResumeTemplateController({ templateId: "creative" });
   const [skillCount, setSkillCount] = useState(4);
 
   const {
@@ -27,6 +28,9 @@ export default function CreativeTemplate() {
     clearAllFields: clearCtrl,
     saveToCabinet,
     ready,
+    readOnly,
+    embed,
+    publicUrl,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -45,13 +49,6 @@ export default function CreativeTemplate() {
   const eduBase = expBase + experienceCount * 4;
 
   const addExperience = () => setExperienceCount((n) => n + 1);
-  const removeExperienceLast = () => {
-    if (experienceCount <= 1) return;
-    const idx = experienceCount - 1;
-    const next = remapCreativeRemoveExperienceRow(fieldValues, idx, experienceCount, educationCount, skillCount);
-    replaceFieldValues(next);
-    setExperienceCount((n) => n - 1);
-  };
   const removeExperienceAt = (rowIndex) => {
     if (experienceCount <= 1) return;
     const next = remapCreativeRemoveExperienceRow(
@@ -66,13 +63,6 @@ export default function CreativeTemplate() {
   };
 
   const addEducation = () => setEducationCount((n) => n + 1);
-  const removeEducationLast = () => {
-    if (educationCount <= 1) return;
-    const idx = educationCount - 1;
-    const next = remapCreativeRemoveEducationRow(fieldValues, idx, experienceCount, educationCount, skillCount);
-    replaceFieldValues(next);
-    setEducationCount((n) => n - 1);
-  };
   const removeEducationAt = (rowIndex) => {
     if (educationCount <= 1) return;
     const next = remapCreativeRemoveEducationRow(
@@ -87,9 +77,21 @@ export default function CreativeTemplate() {
   };
 
   const addSkill = () => setSkillCount((n) => n + 1);
-  const removeSkillLast = () => {
+  const removeSkillAt = (rowIndex) => {
     if (skillCount <= 1) return;
-    const next = remapCreativeRemoveSkill(fieldValues, experienceCount, educationCount, skillCount);
+    const oldD = creativeDescriptors(experienceCount, educationCount, skillCount);
+    const newD = creativeDescriptors(experienceCount, educationCount, skillCount - 1);
+    const oldK = buildKeyList(oldD);
+    const newK = buildKeyList(newD);
+    const removeIdx = 13 + rowIndex;
+    const next = {};
+    let ni = 0;
+    for (let oi = 0; oi < oldK.length; oi++) {
+      if (oi === removeIdx) continue;
+      const v = fieldValues[oldK[oi]];
+      if (v) next[newK[ni]] = v;
+      ni++;
+    }
     replaceFieldValues(next);
     setSkillCount((n) => n - 1);
   };
@@ -108,21 +110,25 @@ export default function CreativeTemplate() {
 
   const navExtra = (
     <>
-      <button type="button" onClick={save} style={{ background: "#166534" }}>
-        Сохранить в кабинет
-      </button>
+      {!readOnly && (
+        <button type="button" onClick={save} style={{ background: "#166534" }}>
+          Сохранить в кабинет
+        </button>
+      )}
       <button type="button" onClick={() => window.print()} style={{ background: "#1d4ed8" }}>
         Скачать PDF (A4)
       </button>
-      <button type="button" onClick={clearAll}>
-        Очистить все поля
-      </button>
+      {!readOnly && (
+        <button type="button" onClick={clearAll}>
+          Очистить все поля
+        </button>
+      )}
     </>
   );
 
   return (
-    <>
-      <TemplateNav extraActions={navExtra} />
+    <div className="creative-template-page">
+      {!embed && <TemplateNav extraActions={navExtra} />}
       <div className="resume-container">
         <header className="header print-priority-high">
           <div className="header-content">
@@ -193,168 +199,161 @@ export default function CreativeTemplate() {
           </div>
         </header>
 
-        <div className="content">
-          <div className="left-column">
-            <div className="section print-priority-high">
-              <h2 className="section-title">Связаться</h2>
-              <div className="contact-list">
-                {[
-                  { icon: "@", ph: "Email" },
-                  { icon: "📱", ph: "Телефон" },
-                  { icon: "🌐", ph: "Сайт" },
-                  { icon: "in", ph: "hh.ru" },
-                  { icon: "📍", ph: "Локация" },
-                ].map((c, i) => (
-                  <div key={c.ph} className="contact-item">
-                    <div className="contact-icon">{c.icon}</div>
-                    <EditableField
-                      fieldKey={contactKeys[i]}
-                      value={fieldValues[contactKeys[i]]}
-                      onChange={setField}
-                      placeholder={c.ph}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="section print-priority-medium">
-              <h2 className="section-title">Навыки</h2>
-              <div id="skills-container" className="skills-grid">
-                {skillKeys.map((sk) => (
-                  <div key={sk} className="skill-item">
-                    <EditableField fieldKey={sk} value={fieldValues[sk]} onChange={setField} placeholder="Навык" />
-                  </div>
-                ))}
-              </div>
-              <div className="experience-controls">
-                <button type="button" className="btn-add" onClick={addSkill}>
-                  + Добавить навык
-                </button>
-                <button type="button" className="btn-remove" onClick={removeSkillLast} disabled={skillCount <= 1}>
-                  - Удалить
-                </button>
-              </div>
-            </div>
-
-            <div className="section print-priority-low">
-              <h2 className="section-title">Дополнительно</h2>
-              <div className="highlight-box">
-                <EditableField fieldKey={leftEmptyKey} value={fieldValues[leftEmptyKey]} onChange={setField} placeholder="" />
-              </div>
+        <div className="content one-column">
+          <div className="section print-priority-high">
+            <h2 className="section-title">Связаться</h2>
+            <div className="contact-list">
+              {[
+                { icon: "@", ph: "Email" },
+                { icon: "📱", ph: "Телефон" },
+                { icon: "🌐", ph: "Сайт" },
+                { icon: "in", ph: "hh.ru" },
+                { icon: "📍", ph: "Локация" },
+              ].map((c, i) => (
+                <div key={c.ph} className="contact-item">
+                  <div className="contact-icon">{c.icon}</div>
+                  <EditableField
+                    fieldKey={contactKeys[i]}
+                    value={fieldValues[contactKeys[i]]}
+                    onChange={setField}
+                    placeholder={c.ph}
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="right-column">
-            <div className="section print-priority-high">
-              <h2 className="section-title">О себе</h2>
-              <div className="highlight-box">
-                <EditableField
-                  fieldKey={aboutKey}
-                  value={fieldValues[aboutKey]}
-                  onChange={setField}
-                  placeholder="Расскажите свою историю"
-                />
-              </div>
+          <div className="section print-priority-high">
+            <h2 className="section-title">О себе</h2>
+            <div className="highlight-box">
+              <EditableField
+                fieldKey={aboutKey}
+                value={fieldValues[aboutKey]}
+                onChange={setField}
+                placeholder="Расскажите свою историю"
+              />
             </div>
+          </div>
 
-            <div className="section print-priority-medium">
-              <h2 className="section-title">Опыт</h2>
-              <div id="experience-container">
-                {Array.from({ length: experienceCount }).map((_, row) => {
-                  const base = expBase + row * 4;
-                  const rk = keys.slice(base, base + 4);
-                  return (
-                    <div key={`exp-${row}`} className="experience-item">
-                      <div className="item-header">
-                        <span className="item-title">
-                          <EditableField
-                            fieldKey={rk[0]}
-                            value={fieldValues[rk[0]]}
-                            onChange={setField}
-                            placeholder="Должность"
-                          />
-                        </span>
-                        <span className="item-date">
-                          <EditableField fieldKey={rk[1]} value={fieldValues[rk[1]]} onChange={setField} placeholder="Период" />
-                        </span>
-                      </div>
-                      <div className="item-company">
-                        <EditableField fieldKey={rk[2]} value={fieldValues[rk[2]]} onChange={setField} placeholder="Компания" />
-                      </div>
-                      <div className="item-description">
-                        <EditableField fieldKey={rk[3]} value={fieldValues[rk[3]]} onChange={setField} placeholder="Описание" />
-                      </div>
-                      <button type="button" className="item-remove-btn" onClick={() => removeExperienceAt(row)}>
-                        Удалить этот блок
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="experience-controls">
-                <button type="button" className="btn-add" onClick={addExperience}>
-                  + Добавить место работы
-                </button>
-                <button
-                  type="button"
-                  className="btn-remove"
-                  onClick={removeExperienceLast}
-                  disabled={experienceCount <= 1}
-                >
-                  - Удалить последнее
-                </button>
-              </div>
-            </div>
-
-            <div className="section print-priority-medium">
-              <h2 className="section-title">Образование</h2>
-              <div id="education-container">
-                {Array.from({ length: educationCount }).map((_, row) => {
-                  const base = eduBase + row * 3;
-                  const rk = keys.slice(base, base + 3);
-                  return (
-                    <div key={`edu-${row}`} className="experience-item">
-                      <div className="item-header">
-                        <span className="item-title">
-                          <EditableField fieldKey={rk[0]} value={fieldValues[rk[0]]} onChange={setField} placeholder="Степень" />
-                        </span>
-                        <span className="item-date">
-                          <EditableField fieldKey={rk[1]} value={fieldValues[rk[1]]} onChange={setField} placeholder="Год" />
-                        </span>
-                      </div>
-                      <div className="item-company">
+          <div className="section print-priority-medium">
+            <h2 className="section-title">Опыт</h2>
+            <div id="experience-container">
+              {Array.from({ length: experienceCount }).map((_, row) => {
+                const base = expBase + row * 4;
+                const rk = keys.slice(base, base + 4);
+                return (
+                  <div key={`exp-${row}`} className="experience-item">
+                    <div className="item-header">
+                      <span className="item-title">
                         <EditableField
-                          fieldKey={rk[2]}
-                          value={fieldValues[rk[2]]}
+                          fieldKey={rk[0]}
+                          value={fieldValues[rk[0]]}
                           onChange={setField}
-                          placeholder="Учебное заведение"
+                          placeholder="Должность"
                         />
-                      </div>
-                      <button type="button" className="item-remove-btn" onClick={() => removeEducationAt(row)}>
-                        Удалить этот блок
-                      </button>
+                      </span>
+                      <span className="item-date">
+                        <EditableField fieldKey={rk[1]} value={fieldValues[rk[1]]} onChange={setField} placeholder="Период" />
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="item-company">
+                      <EditableField fieldKey={rk[2]} value={fieldValues[rk[2]]} onChange={setField} placeholder="Компания" />
+                    </div>
+                    <div className="item-description">
+                      <EditableField fieldKey={rk[3]} value={fieldValues[rk[3]]} onChange={setField} placeholder="Описание" />
+                    </div>
+                    {!readOnly && (
+                      <button type="button" className="item-remove-btn" onClick={() => removeExperienceAt(row)}>
+                        −
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {!readOnly && (
               <div className="experience-controls">
-                <button type="button" className="btn-add" onClick={addEducation}>
-                  + Добавить образование
-                </button>
-                <button
-                  type="button"
-                  className="btn-remove"
-                  onClick={removeEducationLast}
-                  disabled={educationCount <= 1}
-                >
-                  - Удалить последнее
-                </button>
+                <button type="button" className="btn-add" onClick={addExperience}>+</button>
               </div>
+            )}
+          </div>
+
+          <div className="section print-priority-medium">
+            <h2 className="section-title">Образование</h2>
+            <div id="education-container">
+              {Array.from({ length: educationCount }).map((_, row) => {
+                const base = eduBase + row * 3;
+                const rk = keys.slice(base, base + 3);
+                return (
+                  <div key={`edu-${row}`} className="experience-item">
+                    <div className="item-header">
+                      <span className="item-title">
+                        <EditableField fieldKey={rk[0]} value={fieldValues[rk[0]]} onChange={setField} placeholder="Степень" />
+                      </span>
+                      <span className="item-date">
+                        <EditableField fieldKey={rk[1]} value={fieldValues[rk[1]]} onChange={setField} placeholder="Год" />
+                      </span>
+                    </div>
+                    <div className="item-company">
+                      <EditableField
+                        fieldKey={rk[2]}
+                        value={fieldValues[rk[2]]}
+                        onChange={setField}
+                        placeholder="Учебное заведение"
+                      />
+                    </div>
+                    {!readOnly && (
+                      <button type="button" className="item-remove-btn" onClick={() => removeEducationAt(row)}>
+                        −
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {!readOnly && (
+              <div className="experience-controls">
+                <button type="button" className="btn-add" onClick={addEducation}>+</button>
+              </div>
+            )}
+          </div>
+
+          <div className="section print-priority-medium">
+            <h2 className="section-title">Навыки</h2>
+            <div id="skills-container" className="skills-grid">
+              {skillKeys.map((sk, idx) => (
+                <div key={sk} className="skill-item" style={{ position: "relative" }}>
+                  <EditableField fieldKey={sk} value={fieldValues[sk]} onChange={setField} placeholder="Навык" />
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      className="item-remove-btn"
+                      onClick={() => removeSkillAt(idx)}
+                      disabled={skillCount <= 1}
+                      style={{ position: "absolute", top: "4px", right: "4px", margin: 0 }}
+                    >
+                      −
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {!readOnly && (
+              <div className="experience-controls">
+                <button type="button" className="btn-add" onClick={addSkill}>+</button>
+              </div>
+            )}
+          </div>
+
+          <div className="section print-priority-low">
+            <h2 className="section-title">Дополнительно</h2>
+            <div className="highlight-box">
+              <EditableField fieldKey={leftEmptyKey} value={fieldValues[leftEmptyKey]} onChange={setField} placeholder="" />
             </div>
           </div>
         </div>
       </div>
-    </>
+      {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
+    </div>
   );
 }

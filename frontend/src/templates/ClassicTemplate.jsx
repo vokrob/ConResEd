@@ -3,6 +3,7 @@ import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { buildKeyList } from "./resumeNormalize.js";
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
+import { ShareQrFooter } from "./ShareQrFooter.jsx";
 import "./styles/classic.css";
 
 const HEADER_ABOUT = 8;
@@ -78,7 +79,7 @@ function remapAfterRemoveEducationRow(fieldValues, rowIndex, exp, oldEdu, skillC
 }
 
 export default function ClassicTemplate() {
-  const ctrl = useResumeTemplateController();
+  const ctrl = useResumeTemplateController({ templateId: "classic" });
   const [skillCount, setSkillCount] = useState(1);
 
   const {
@@ -93,6 +94,8 @@ export default function ClassicTemplate() {
     saveToCabinet,
     ready,
     readOnly,
+    embed,
+    publicUrl,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -112,20 +115,6 @@ export default function ClassicTemplate() {
     setExperienceCount((n) => n + 1);
   };
 
-  const removeExperienceLast = () => {
-    if (experienceCount <= 1) return;
-    const idx = experienceCount - 1;
-    const next = remapAfterRemoveExperienceRow(
-      fieldValues,
-      idx,
-      experienceCount,
-      educationCount,
-      skillCount,
-    );
-    replaceFieldValues(next);
-    setExperienceCount((n) => n - 1);
-  };
-
   const removeExperienceAt = (rowIndex) => {
     if (experienceCount <= 1) return;
     const next = remapAfterRemoveExperienceRow(
@@ -140,20 +129,6 @@ export default function ClassicTemplate() {
   };
 
   const addEducation = () => setEducationCount((n) => n + 1);
-
-  const removeEducationLast = () => {
-    if (educationCount <= 1) return;
-    const idx = educationCount - 1;
-    const next = remapAfterRemoveEducationRow(
-      fieldValues,
-      idx,
-      experienceCount,
-      educationCount,
-      skillCount,
-    );
-    replaceFieldValues(next);
-    setEducationCount((n) => n - 1);
-  };
 
   const removeEducationAt = (rowIndex) => {
     if (educationCount <= 1) return;
@@ -228,7 +203,7 @@ export default function ClassicTemplate() {
 
   return (
     <div className="classic-template-page" lang="ru">
-      <TemplateNav extraActions={navExtra} />
+      {!embed && <TemplateNav extraActions={navExtra} />}
       <div className="resume-container">
         <header className="header print-priority-high">
           <div className="avatar-placeholder">📷 Фото</div>
@@ -356,26 +331,20 @@ export default function ClassicTemplate() {
                       placeholder="Описание обязанностей"
                     />
                   </div>
-                  <button type="button" className="item-remove-btn" onClick={() => removeExperienceAt(row)}>
-                    Удалить этот блок
-                  </button>
+                  {!readOnly && (
+                    <button type="button" className="item-remove-btn" onClick={() => removeExperienceAt(row)}>
+                      −
+                    </button>
+                  )}
                 </div>
               );
             })}
           </div>
-          <div className="experience-controls">
-            <button type="button" className="btn-add" onClick={addExperience}>
-              + Добавить место работы
-            </button>
-            <button
-              type="button"
-              className="btn-remove"
-              onClick={removeExperienceLast}
-              disabled={experienceCount <= 1}
-            >
-              - Удалить последнее
-            </button>
-          </div>
+          {!readOnly && (
+            <div className="experience-controls">
+              <button type="button" className="btn-add" onClick={addExperience}>+</button>
+            </div>
+          )}
         </section>
 
         <section className="section print-priority-medium">
@@ -414,26 +383,20 @@ export default function ClassicTemplate() {
                       placeholder="Учебное заведение"
                     />
                   </div>
-                  <button type="button" className="item-remove-btn" onClick={() => removeEducationAt(row)}>
-                    Удалить этот блок
-                  </button>
+                  {!readOnly && (
+                    <button type="button" className="item-remove-btn" onClick={() => removeEducationAt(row)}>
+                      −
+                    </button>
+                  )}
                 </div>
               );
             })}
           </div>
-          <div className="experience-controls">
-            <button type="button" className="btn-add" onClick={addEducation}>
-              + Добавить образование
-            </button>
-            <button
-              type="button"
-              className="btn-remove"
-              onClick={removeEducationLast}
-              disabled={educationCount <= 1}
-            >
-              - Удалить последнее
-            </button>
-          </div>
+          {!readOnly && (
+            <div className="experience-controls">
+              <button type="button" className="btn-add" onClick={addEducation}>+</button>
+            </div>
+          )}
         </section>
 
         <section className="section print-priority-medium">
@@ -449,17 +412,17 @@ export default function ClassicTemplate() {
                     onClick={() => removeSkillAt(row)}
                     disabled={skillCount <= 1}
                   >
-                    Удалить
+                    −
                   </button>
                 )}
               </div>
             ))}
           </div>
-          <div className="experience-controls">
-            <button type="button" className="btn-add" onClick={addSkill}>
-              + Добавить навык
-            </button>
-          </div>
+          {!readOnly && (
+            <div className="experience-controls">
+              <button type="button" className="btn-add" onClick={addSkill}>+</button>
+            </div>
+          )}
         </section>
 
         <section className="section print-priority-low">
@@ -472,6 +435,7 @@ export default function ClassicTemplate() {
           />
         </section>
       </div>
+      {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
     </div>
   );
 }

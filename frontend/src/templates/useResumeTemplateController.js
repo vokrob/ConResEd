@@ -2,26 +2,50 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { RESUME_FIELDS_STORAGE_KEY, RESUME_STRUCTURE_STORAGE_KEY } from "./storageKeys";
 
-export function useResumeTemplateController() {
+export function useResumeTemplateController({ templateId } = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const resumeId = searchParams.get("resumeId");
   const blank = searchParams.get("blank") === "1";
-  const readOnly = searchParams.get("readonly") === "1";
+  const shareToken = searchParams.get("share");
+  const embed = searchParams.get("embed") === "1" || Boolean(shareToken);
+  const readOnly = searchParams.get("readonly") === "1" || Boolean(shareToken);
 
   const [fieldValues, setFieldValuesState] = useState({});
   const [experienceCount, setExperienceCount] = useState(1);
   const [educationCount, setEducationCount] = useState(1);
   const [ready, setReady] = useState(false);
+  const [publicToken, setPublicToken] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     async function run() {
+      if (shareToken) {
+        try {
+          const r = await fetch(`/api/public/resumes/${encodeURIComponent(shareToken)}`);
+          const data = await r.json().catch(() => ({}));
+          if (r.ok) {
+            const payload = data?.item?.payload || {};
+            if (!cancelled) {
+              setFieldValuesState(payload.fields || {});
+              const st = payload.structure || {};
+              setExperienceCount(Math.max(1, Number(st.experience) || 1));
+              setEducationCount(Math.max(1, Number(st.education) || 1));
+            }
+          }
+        } catch {
+          /* ignore */
+        }
+        if (!cancelled) setReady(true);
+        return;
+      }
       if (resumeId) {
         try {
           const r = await fetch(`/api/resumes/${resumeId}`, { credentials: "include" });
           if (r.ok) {
             const data = await r.json();
             const payload = data?.item?.payload || {};
+            const token = data?.item?.public_token || "";
+            if (!cancelled && token) setPublicToken(token);
             if (payload.structure) {
               localStorage.setItem(RESUME_STRUCTURE_STORAGE_KEY, JSON.stringify(payload.structure));
             }
@@ -68,7 +92,7 @@ export function useResumeTemplateController() {
     return () => {
       cancelled = true;
     };
-  }, [resumeId, blank]);
+  }, [resumeId, blank, shareToken]);
 
   useEffect(() => {
     if (!ready || readOnly) return;
@@ -82,6 +106,11 @@ export function useResumeTemplateController() {
     document.documentElement.classList.toggle("template-readonly", readOnly);
     return () => document.documentElement.classList.remove("template-readonly");
   }, [readOnly]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("template-embed", embed);
+    return () => document.documentElement.classList.remove("template-embed");
+  }, [embed]);
 
   const setField = useCallback((key, raw) => {
     if (readOnly) return;
@@ -162,6 +191,8 @@ export function useResumeTemplateController() {
       });
       const result = await response.json().catch(() => ({}));
       if (response.ok) {
+        const token = result?.item?.public_token || "";
+        if (token) setPublicToken(token);
         if (!updateExisting && result?.item?.id) {
           const next = new URLSearchParams(searchParams);
           next.set("resumeId", String(result.item.id));
@@ -176,10 +207,22 @@ export function useResumeTemplateController() {
     [fieldValues, readOnly, resumeId, searchParams, setSearchParams],
   );
 
+  const publicUrl =
+    !shareToken && readOnly && templateId && publicToken
+      ? new URL(
+          `/templates/${templateId}?readonly=1&share=${encodeURIComponent(publicToken)}&embed=1`,
+          window.location.origin,
+        ).toString()
+      : "";
+
   return {
     resumeId,
     blank,
     readOnly,
+    embed,
+    shareToken,
+    publicToken,
+    publicUrl,
     fieldValues,
     setField,
     replaceFieldValues,
