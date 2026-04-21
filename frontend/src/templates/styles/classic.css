@@ -1,4 +1,3 @@
-/* Классический шаблон — стили ограничены .classic-template-page (без глобального body) */
 
 .classic-template-page {
   box-sizing: border-box;
@@ -60,7 +59,6 @@
   object-fit: cover;
 }
 
-/* Должность и контакты — отдельный блок ниже шапки (под чертой после ФИО) */
 .classic-template-page .header-meta-below {
   width: 100%;
   max-width: 100%;
@@ -73,7 +71,6 @@
   min-width: 0;
 }
 
-/* ФИО: три строки на всю доступную ширину контейнера резюме */
 .classic-template-page .header-fio {
   width: 100%;
   max-width: 100%;
@@ -127,7 +124,6 @@
   text-align: center;
 }
 
-/* Контакты: по одной строке под должностью */
 .classic-template-page .header-contacts {
   display: flex;
   flex-direction: column;
@@ -197,6 +193,8 @@
   overflow-wrap: anywhere;
   word-break: break-word;
   hyphens: auto;
+  color: #111;
+  background: transparent;
 }
 
 .classic-template-page .editable-field:hover {
@@ -224,7 +222,6 @@
 
 .classic-template-page .item-header {
   display: grid;
-  /* Равные колонки: период/год не раздувают правую ячейку и не наезжают на заголовок */
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px 12px;
   align-items: start;
@@ -344,16 +341,17 @@
 
 .classic-template-page .btn-add,
 .classic-template-page .btn-remove {
-  padding: 8px 16px;
+  width: 32px;
+  height: 32px;
   border: none;
-  border-radius: 5px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 13px;
-  transition: background 0.2s;
+  font-size: 18px;
+  font-weight: bold;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  flex: 0 1 auto;
+  justify-content: center;
+  transition: background 0.2s;
 }
 
 .classic-template-page .btn-add {
@@ -377,6 +375,22 @@
 .classic-template-page .btn-remove:disabled {
   background: #95a5a6;
   cursor: not-allowed;
+}
+
+.classic-template-page .item-remove-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #f3f4f6;
+  color: #7f1d1d;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
 }
 
 .classic-template-page .template-nav {
@@ -409,17 +423,6 @@
   border-radius: 4px;
   cursor: pointer;
   flex: 0 1 auto;
-}
-
-.classic-template-page .item-remove-btn {
-  margin-top: 8px;
-  border: none;
-  background: #f3f4f6;
-  color: #7f1d1d;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
 }
 
 .classic-template-page .section,

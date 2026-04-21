@@ -1,0 +1,325 @@
+.it-template-page {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 16px;
+  background: #fff;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.5;
+  color: #111;
+}
+
+.it-template-page *,
+.it-template-page *::before,
+.it-template-page *::after {
+  box-sizing: border-box;
+}
+
+.it-template-page .resume-container {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  padding: 40px 48px;
+}
+
+.it-template-page .header {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.it-template-page .avatar-placeholder {
+  width: 120px;
+  height: 150px;
+  background: #f1f3f5;
+  border: 2px dashed #adb5bd;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.it-template-page .header-info {
+  flex: 1;
+}
+
+.it-template-page .name {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 36px;
+  font-weight: 700;
+  color: #1e3a5f;
+  margin-bottom: 8px;
+}
+
+.it-template-page .title {
+  font-size: 20px;
+  font-weight: 500;
+  color: #2c5282;
+  margin-bottom: 16px;
+}
+
+.it-template-page .contacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  font-size: 14px;
+}
+
+.it-template-page .contact-icon {
+  display: inline-block;
+  width: 24px;
+  color: #2c5282;
+  font-weight: 500;
+}
+
+.it-template-page .section {
+  margin-bottom: 32px;
+}
+
+.it-template-page .section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a5f;
+  border-left: 4px solid #2c5282;
+  padding-left: 12px;
+  margin-bottom: 16px;
+}
+
+.it-template-page .summary-box {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 16px;
+  border-left: 4px solid #2c5282;
+}
+
+.it-template-page .experience-item,
+.it-template-page .education-item {
+  background: #f8f9fa;
+  padding: 16px 20px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.it-template-page .item-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.it-template-page .item-title {
+  font-weight: 700;
+  font-size: 16px;
+  flex: 1;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.it-template-page .item-date {
+  color: #2c5282;
+  font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.it-template-page .item-company,
+.it-template-page .item-place {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 8px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.it-template-page .item-description {
+  color: #343a40;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Кнопка удаления внизу блока */
+.it-template-page .experience-item .item-remove-btn,
+.it-template-page .education-item .item-remove-btn {
+  position: static;
+  margin-top: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f3f5;
+  border: none;
+  color: #c0392b;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.it-template-page .skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.it-template-page .skill-item {
+  background: #e9ecef;
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.it-template-page .projects-list,
+.it-template-page .certificates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.it-template-page .project-item,
+.it-template-page .cert-item {
+  background: #f8f9fa;
+  padding: 16px 20px;
+  border-radius: 16px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Для проектов и сертификатов кнопка удаления тоже внизу */
+.it-template-page .project-item .item-remove-btn,
+.it-template-page .cert-item .item-remove-btn {
+  position: static;
+  align-self: flex-start;
+  margin-top: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f3f5;
+  border: none;
+  color: #c0392b;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.it-template-page .btn-add {
+  background: #2c5282;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.it-template-page .btn-add:hover {
+  background: #1e3a5f;
+}
+
+.it-template-page .editable-field {
+  padding: 4px 6px;
+  border: 1px dashed transparent;
+  border-radius: 6px;
+  transition: all 0.2s;
+  background: transparent;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.it-template-page .editable-field:hover {
+  border-color: #2c5282;
+  background: #fff;
+}
+
+.it-template-page .editable-field:focus {
+  outline: none;
+  border-color: #1e3a5f;
+  background: #fff;
+}
+
+.it-template-page .editable-field:empty:before {
+  content: attr(data-placeholder);
+  color: #adb5bd;
+}
+
+.it-template-page .template-nav {
+  max-width: 210mm;
+  margin: 0 auto 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.it-template-page .template-nav a,
+.it-template-page .template-nav button {
+  text-decoration: none;
+  background: #2c5282;
+  color: white;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+}
+
+@media print {
+  .it-template-page {
+    background: white;
+    padding: 0;
+  }
+  .it-template-page .resume-container {
+    box-shadow: none;
+    padding: 0;
+  }
+  .it-template-page .template-nav,
+  .it-template-page .btn-add,
+  .it-template-page .item-remove-btn {
+    display: none;
+  }
+  .it-template-page .editable-field {
+    border: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .it-template-page .resume-container {
+    padding: 20px;
+  }
+  .it-template-page .header {
+    flex-direction: column;
+  }
+  .it-template-page .name {
+    font-size: 28px;
+  }
+}
