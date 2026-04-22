@@ -53,11 +53,15 @@ export function useResumeTemplateController({ templateId } = {}) {
             if (payload.fields) {
               localStorage.setItem(RESUME_FIELDS_STORAGE_KEY, JSON.stringify(payload.fields));
             }
+			if (payload.photo) {
+              localStorage.setItem(RESUME_PHOTO_STORAGE_KEY, payload.photo);
+            }
             if (!cancelled) {
               setFieldValuesState(payload.fields || {});
               const st = payload.structure || {};
               setExperienceCount(Math.max(1, Number(st.experience) || 1));
               setEducationCount(Math.max(1, Number(st.education) || 1));
+			  if (payload.photo) setPhotoState(payload.photo);
             }
           }
         } catch {
