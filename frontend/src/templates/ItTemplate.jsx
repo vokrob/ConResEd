@@ -120,6 +120,14 @@ export default function ItTemplate() {
     setCertCount(1);
   }, [clearCtrl]);
 
+  const handleNavigateHome = useCallback(() => {
+    clearCtrl();
+    setTechCount(5);
+    setProjectCount(1);
+    setCertCount(1);
+    window.location.href = "/";
+  }, [clearCtrl]);
+
   const structure = { experience: experienceCount, education: educationCount };
   const save = () => saveToCabinet("it", keys, structure);
 
@@ -147,7 +155,7 @@ export default function ItTemplate() {
 
   return (
     <div className="it-template-page">
-      {!embed && <TemplateNav extraActions={navExtra} />}
+      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <header className="header">
 		  {!readOnly && (

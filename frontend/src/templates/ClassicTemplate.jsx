@@ -173,7 +173,14 @@ export default function ClassicTemplate() {
     clearCtrl();
     setSkillCount(1);
   }, [clearCtrl]);
-
+  
+  const handleNavigateHome = useCallback(() => {
+    clearCtrl();
+    setSkillCount(1);
+    // Переход на главную страницу после очистки
+    window.location.href = "/";
+  }, [clearCtrl]);
+  
   const structure = { experience: experienceCount, education: educationCount };
 
   const save = () => saveToCabinet("classic", keys, structure);
@@ -206,7 +213,7 @@ export default function ClassicTemplate() {
 
   return (
     <div className="classic-template-page" lang="ru">
-      {!embed && <TemplateNav extraActions={navExtra} />}
+      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <header className="header print-priority-high">
 		  {!readOnly && (

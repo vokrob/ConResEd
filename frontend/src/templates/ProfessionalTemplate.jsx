@@ -251,6 +251,14 @@ export default function ProfessionalTemplate() {
     setLangCount(1);
   }, [clearCtrl]);
 
+  const handleNavigateHome = useCallback(() => {
+    clearCtrl();
+    setSkillCount(4);
+    setCertCount(1);
+    setLangCount(1);
+    window.location.href = "/";
+  }, [clearCtrl]);
+
   const structure = { experience: experienceCount, education: educationCount };
   const save = () => saveToCabinet("professional", keys, structure);
 
@@ -278,7 +286,7 @@ export default function ProfessionalTemplate() {
 
   return (
     <div className="professional-template-page">
-      {!embed && <TemplateNav extraActions={navExtra} />}
+      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <div className="top-bar print-priority-high">
           <div className="contact-info">

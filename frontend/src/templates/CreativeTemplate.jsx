@@ -104,6 +104,12 @@ export default function CreativeTemplate() {
     setSkillCount(4);
   }, [clearCtrl]);
 
+  const handleNavigateHome = useCallback(() => {
+    clearCtrl();
+    setSkillCount(4);
+    window.location.href = "/";
+  }, [clearCtrl]);
+  
   const structure = { experience: experienceCount, education: educationCount };
   const save = () => saveToCabinet("creative", keys, structure);
 
@@ -131,7 +137,7 @@ export default function CreativeTemplate() {
 
   return (
     <div className="creative-template-page">
-      {!embed && <TemplateNav extraActions={navExtra} />}
+      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <header className="header print-priority-high">
           <div className="header-content">
