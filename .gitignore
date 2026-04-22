@@ -1,18 +1,33 @@
-# OS
-.DS_Store
-Thumbs.db
+```
+# Environment variables
+.env
+.env.local
+.env.*
 
 # Dependencies
 node_modules/
 
-# Environment (secrets); *.example остаётся в репозитории
-.env
-.env.local
-.env.*.local
+# Build artifacts
+dist/
+build/
+*.js.map
 
-# Logs
+# Editors
+.vscode/
+.idea/
+
+# Logs and temp files
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+*.tmp
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS generated files
+.DS_Store
+Thumbs.db
+```

@@ -209,10 +209,14 @@ export function useResumeTemplateController({ templateId } = {}) {
 
   const publicUrl =
     !shareToken && readOnly && templateId && publicToken
-      ? new URL(
-          `/templates/${templateId}?readonly=1&share=${encodeURIComponent(publicToken)}&embed=1`,
-          window.location.origin,
-        ).toString()
+      ? (() => {
+          // Используем переменную окружения VITE_APP_URL если задана, иначе определяем базовый URL
+          const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+          return new URL(
+            `/templates/${templateId}?readonly=1&share=${encodeURIComponent(publicToken)}&embed=1`,
+            baseUrl,
+          ).toString();
+        })()
       : "";
 
   return {
