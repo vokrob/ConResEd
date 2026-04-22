@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { RESUME_FIELDS_STORAGE_KEY, RESUME_STRUCTURE_STORAGE_KEY } from "./storageKeys";
+import { RESUME_FIELDS_STORAGE_KEY, RESUME_STRUCTURE_STORAGE_KEY, RESUME_PHOTO_STORAGE_KEY } from "./storageKeys";
 
 export function useResumeTemplateController({ templateId } = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,6 +15,7 @@ export function useResumeTemplateController({ templateId } = {}) {
   const [educationCount, setEducationCount] = useState(1);
   const [ready, setReady] = useState(false);
   const [publicToken, setPublicToken] = useState("");
+  const [photo, setPhotoState] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +71,7 @@ export function useResumeTemplateController({ templateId } = {}) {
           setFieldValuesState({});
           setExperienceCount(1);
           setEducationCount(1);
+		  setPhotoState("");
         }
         if (!cancelled) setReady(true);
         return;
@@ -83,6 +85,8 @@ export function useResumeTemplateController({ templateId } = {}) {
           setExperienceCount(Math.max(1, Number(st.experience) || 1));
           setEducationCount(Math.max(1, Number(st.education) || 1));
         }
+		const pr = localStorage.getItem(RESUME_PHOTO_STORAGE_KEY);
+        if (pr) setPhotoState(pr);
       } catch {
         /* ignore */
       }
@@ -136,8 +140,10 @@ export function useResumeTemplateController({ templateId } = {}) {
   const clearAllFields = useCallback(() => {
     if (readOnly) return;
     setFieldValuesState({});
+	setPhotoState("");
     localStorage.removeItem(RESUME_FIELDS_STORAGE_KEY);
     localStorage.removeItem(RESUME_STRUCTURE_STORAGE_KEY);
+	localStorage.removeItem(RESUME_PHOTO_STORAGE_KEY);
     setExperienceCount(1);
     setEducationCount(1);
   }, [readOnly]);
@@ -169,6 +175,7 @@ export function useResumeTemplateController({ templateId } = {}) {
       const structureRaw = JSON.stringify(structure);
       localStorage.setItem(RESUME_FIELDS_STORAGE_KEY, fieldsRaw);
       localStorage.setItem(RESUME_STRUCTURE_STORAGE_KEY, structureRaw);
+	  if (photo) localStorage.setItem(RESUME_PHOTO_STORAGE_KEY, photo);
 
       const updateExisting = resumeId
         ? window.confirm(
@@ -186,7 +193,11 @@ export function useResumeTemplateController({ templateId } = {}) {
         body: JSON.stringify({
           template_id: templateId,
           title,
-          payload: { fields: JSON.parse(fieldsRaw), structure: JSON.parse(structureRaw) },
+		  payload: {
+            fields: JSON.parse(fieldsRaw),
+            structure: JSON.parse(structureRaw),
+            photo: photo || null
+          },
         }),
       });
       const result = await response.json().catch(() => ({}));
@@ -204,7 +215,7 @@ export function useResumeTemplateController({ templateId } = {}) {
         alert(result?.error || "Не удалось сохранить шаблон");
       }
     },
-    [fieldValues, readOnly, resumeId, searchParams, setSearchParams],
+    [fieldValues, photo, readOnly, resumeId, searchParams, setSearchParams],
   );
 
   const publicUrl =
@@ -239,5 +250,15 @@ export function useResumeTemplateController({ templateId } = {}) {
     ready,
     searchParams,
     setSearchParams,
+	photo,
+    setPhoto: (newPhoto) => {
+      if (readOnly) return;
+      setPhotoState(newPhoto);
+      if (newPhoto) {
+        localStorage.setItem(RESUME_PHOTO_STORAGE_KEY, newPhoto);
+      } else {
+        localStorage.removeItem(RESUME_PHOTO_STORAGE_KEY);
+      }
+    },
   };
 }

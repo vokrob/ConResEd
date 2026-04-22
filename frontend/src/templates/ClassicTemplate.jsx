@@ -4,6 +4,7 @@ import { TemplateNav } from "./TemplateNav.jsx";
 import { buildKeyList } from "./resumeNormalize.js";
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import { ShareQrFooter } from "./ShareQrFooter.jsx";
+import { PhotoUploader } from "../components/PhotoUploader.jsx";
 import "./styles/classic.css";
 
 const HEADER_ABOUT = 8;
@@ -96,6 +97,8 @@ export default function ClassicTemplate() {
     readOnly,
     embed,
     publicUrl,
+	photo,
+    setPhoto,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -206,7 +209,17 @@ export default function ClassicTemplate() {
       {!embed && <TemplateNav extraActions={navExtra} />}
       <div className="resume-container">
         <header className="header print-priority-high">
-          <div className="avatar-placeholder">📷 Фото</div>
+		  {!readOnly && (
+            <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
+          )}
+          {readOnly && photo && (
+            <div className="avatar-placeholder">
+              <img src={photo} alt="Фото" />
+            </div>
+          )}
+          {readOnly && !photo && (
+            <div className="avatar-placeholder">📷 Фото</div>
+          )}
           <div className="header-fio" aria-label="ФИО">
             <div className="header-fio-row">
               <EditableField

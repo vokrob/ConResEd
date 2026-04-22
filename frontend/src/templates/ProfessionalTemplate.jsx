@@ -3,6 +3,7 @@ import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { ShareQrFooter } from "./ShareQrFooter.jsx";
+import { PhotoUploader } from "../components/PhotoUploader.jsx";
 import {
   professionalDescriptors,
   professionalSkillSectionLength,
@@ -62,6 +63,8 @@ export default function ProfessionalTemplate() {
     readOnly,
     embed,
     publicUrl,
+	photo,
+    setPhoto,
   } = ctrl;
 
   // Используем categorySkillCounts как [skillCount] для плоского списка
@@ -299,7 +302,17 @@ export default function ProfessionalTemplate() {
         </div>
 
         <header className="header print-priority-high">
-          <div className="avatar-placeholder">📷 Фото</div>
+		  {!readOnly && (
+            <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
+          )}
+          {readOnly && photo && (
+            <div className="avatar-placeholder">
+              <img src={photo} alt="Фото" />
+            </div>
+          )}
+          {readOnly && !photo && (
+            <div className="avatar-placeholder">📷 Фото</div>
+          )}
           <div className="name-block">
             <div>
               <div className="name">
