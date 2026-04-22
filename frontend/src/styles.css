@@ -956,17 +956,17 @@ body {
   position: relative;
   width: 100%;
   max-width: 500px;
-  max-height: 400px;
   overflow: hidden;
   border-radius: 8px;
   background: #000;
+  display: inline-block;
 }
 
 .crop-image {
   display: block;
-  width: 100%;
+  max-width: 100%;
   height: auto;
-  max-height: 400px;
+  max-height: 60vh;
   object-fit: contain;
 }
 
