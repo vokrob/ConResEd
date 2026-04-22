@@ -3,6 +3,7 @@ import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { ShareQrFooter } from "./ShareQrFooter.jsx";
+import { PhotoUploader } from "../components/PhotoUploader.jsx";
 import {
   creativeDescriptors,
   creativeExpBase,
@@ -31,6 +32,8 @@ export default function CreativeTemplate() {
     readOnly,
     embed,
     publicUrl,
+	photo,
+    setPhoto,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -132,7 +135,17 @@ export default function CreativeTemplate() {
       <div className="resume-container">
         <header className="header print-priority-high">
           <div className="header-content">
-            <div className="avatar-placeholder">📷 Фото</div>
+		    {!readOnly && (
+              <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
+            )}
+            {readOnly && photo && (
+              <div className="avatar-placeholder">
+                <img src={photo} alt="Фото" />
+              </div>
+            )}
+            {readOnly && !photo && (
+              <div className="avatar-placeholder">📷 Фото</div>
+            )}
             <div>
               <div className="name-wrapper">
                 <div className="name">

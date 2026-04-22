@@ -3,6 +3,7 @@ import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { ShareQrFooter } from "./ShareQrFooter.jsx";
+import { PhotoUploader } from "../components/PhotoUploader.jsx";
 import {
   MODERN_PREFIX,
   modernDescriptors,
@@ -73,6 +74,8 @@ export default function ModernTemplate() {
     readOnly,
     embed,
     publicUrl,
+	photo,
+    setPhoto,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -187,10 +190,20 @@ export default function ModernTemplate() {
       {!embed && <TemplateNav extraActions={navExtra} />}
       <div className="resume-container">
         <div className="top-section print-priority-high">
-          <div className="avatar-placeholder">
-            <span>📷</span>
-            <span className="upload-hint">Фото</span>
-          </div>
+		  {!readOnly && (
+            <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
+          )}
+          {readOnly && photo && (
+            <div className="avatar-placeholder">
+              <img src={photo} alt="Фото" />
+            </div>
+          )}
+          {readOnly && !photo && (
+            <div className="avatar-placeholder">
+              <span>📷</span>
+              <span className="upload-hint">Фото</span>
+            </div>
+          )}
           <div className="name">
             <span className="bold">
               <EditableField
