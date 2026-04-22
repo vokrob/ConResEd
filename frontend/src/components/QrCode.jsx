@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 
-export function QrCode({ text, size = 160, className = "" }) {
+export function QrCode({ text, size = 200, className = "" }) {
   const [dataUrl, setDataUrl] = useState("");
 
   useEffect(() => {
