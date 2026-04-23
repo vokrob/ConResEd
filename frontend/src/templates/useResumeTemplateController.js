@@ -31,6 +31,7 @@ export function useResumeTemplateController({ templateId } = {}) {
               const st = payload.structure || {};
               setExperienceCount(Math.max(1, Number(st.experience) || 1));
               setEducationCount(Math.max(1, Number(st.education) || 1));
+			  if (payload.photo) setPhotoState(payload.photo);
             }
           }
         } catch {
