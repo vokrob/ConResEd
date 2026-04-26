@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 const API_BASE_URL = "/api";
 const TEMPLATE_BASE_URL = "/templates";
 function userInitials(user) {
@@ -9,7 +10,18 @@ function userInitials(user) {
   }
   return name.slice(0, 2).toUpperCase();
 }
+function buildReadonlyTemplateUrl(item) {
+  const url = new URL(`/templates/${item.template_id}`, window.location.origin);
+  url.searchParams.set("readonly", "1");
+  if (item.public_token) {
+    url.searchParams.set("share", item.public_token);
+  } else {
+    url.searchParams.set("resumeId", String(item.id));
+  }
+  return url.toString();
+}
 export default function App() {
+  const navigate = useNavigate();
   const [status, setStatus] = useState({ message: "", type: "" });
   const [loading, setLoading] = useState({
     register: false,
@@ -200,6 +212,12 @@ export default function App() {
       title: "Профессиональный",
       description: "Деловой шаблон с расширенными блоками.",
     },
+    {
+      id: "it",
+      variant: "it",
+      title: "IT Специалист",
+      description: "Для разработчиков, DevOps, аналитиков. Технологии, проекты, сертификаты.",
+    },
   ];
   const filteredAndSortedResumes = savedResumes
     .filter((item) => {
@@ -364,7 +382,7 @@ export default function App() {
                 data-variant={template.variant}
                 role="listitem"
                 onClick={() => {
-                  window.location.href = `${TEMPLATE_BASE_URL}/${template.id}.html?blank=1`;
+                  navigate(`/templates/${template.id}?blank=1`);
                 }}
               >
                 <div className="template-row-content">
@@ -432,7 +450,7 @@ export default function App() {
                     type="button"
                     className="template-open-btn"
                     onClick={() => {
-                      window.location.href = `${TEMPLATE_BASE_URL}/${item.template_id}.html?resumeId=${item.id}`;
+                      navigate(`/templates/${item.template_id}?resumeId=${item.id}`);
                     }}
                   >
                     <div className="template-row-content">
@@ -452,6 +470,19 @@ export default function App() {
                     </div>
                     <span className="template-row-action" aria-hidden="true">Открыть</span>
                   </button>
+				  <a
+                  className="template-qr-link"
+                  href={buildReadonlyTemplateUrl(item)}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Открыть QR-версию шаблона"
+                >
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(buildReadonlyTemplateUrl(item))}`}
+                    alt={`QR-код для ${item.title}`}
+                    loading="lazy"
+                  />
+                </a>
                   <button
                     type="button"
                     className="btn btn-danger btn-compact"
