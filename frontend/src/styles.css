@@ -223,47 +223,23 @@ body {
   color: inherit;
 }
 
-/* Public/embedded template view: no navigation */
-.template-embed .template-nav {
-  display: none !important;
-}
-
-/* QR share footer (owner readonly preview) */
-.share-qr-footer {
-  padding: 16px 0 0;
-  display: flex;
-  justify-content: center;
-}
-
-.share-qr-title {
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  margin-bottom: 6px;
-}
-
-.share-qr-subtitle {
-  color: var(--ink-muted);
-  font-size: 0.9rem;
-  line-height: 1.35;
-  margin-bottom: 10px;
-}
-
-.share-qr-link {
-  word-break: break-all;
-  color: var(--accent-deep);
-  text-decoration: none;
-  border-bottom: 1px dashed rgba(79, 70, 229, 0.35);
-}
-
-.share-qr-link:hover {
-  border-bottom-color: rgba(79, 70, 229, 0.7);
-}
-
-.share-qr-image img {
-  border-radius: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.12);
+.template-qr-link {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
   background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.template-qr-link img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .template-readonly .template-nav button,
@@ -643,7 +619,6 @@ body {
   margin-top: 0 !important;
 }
 
-/* Стиль для даты сохранения */
 .saved-date {
   display: block;
   font-size: 0.8rem;
@@ -742,7 +717,6 @@ body {
   color: var(--accent-deep);
 }
 
-/* Адаптив для панели управления */
 @media (max-width: 600px) {
   .resume-controls {
     flex-direction: column;
@@ -754,7 +728,6 @@ body {
   }
 }
 
-/* ——— Смартфоны и узкие экраны ——— */
 @media (max-width: 639px) {
   body {
     padding: 12px;
@@ -800,9 +773,10 @@ body {
     order: 0;
   }
 
-  .share-qr-card {
-    grid-template-columns: 1fr;
-    justify-items: start;
+  .template-qr-link {
+    order: 1;
+    width: 64px;
+    height: 64px;
   }
 
   .template-row > .btn-compact {
@@ -833,219 +807,4 @@ body {
   .auth-card {
     padding: 20px 16px 18px;
   }
-}
-
-/* === Photo Uploader Modal Styles === */
-.photo-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: 20px;
-}
-
-.photo-modal {
-  background: #fff;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 28px;
-  line-height: 1;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: background 0.2s, color 0.2s;
-}
-
-.modal-close:hover {
-  background: #f3f4f6;
-  color: #1f2937;
-}
-
-.modal-body {
-  padding: 20px;
-  flex: 1;
-  overflow: auto;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.upload-area {
-  width: 100%;
-  max-width: 400px;
-}
-
-.upload-label {
-  display: block;
-  width: 100%;
-  cursor: pointer;
-}
-
-.upload-content {
-  border: 2px dashed #d1d5db;
-  border-radius: 12px;
-  padding: 40px 20px;
-  text-align: center;
-  transition: border-color 0.2s, background 0.2s;
-  background: #f9fafb;
-}
-
-.upload-content:hover {
-  border-color: #6366f1;
-  background: #f0f0ff;
-}
-
-.upload-icon {
-  font-size: 48px;
-  display: block;
-  margin-bottom: 12px;
-}
-
-.upload-content p {
-  margin: 4px 0;
-  color: #374151;
-  font-weight: 500;
-}
-
-.upload-hint-text {
-  color: #9ca3af !important;
-  font-size: 0.9rem;
-}
-
-.crop-container {
-  position: relative;
-  width: 100%;
-  max-width: 500px;
-  overflow: hidden;
-  border-radius: 8px;
-  background: #000;
-  display: inline-block;
-}
-
-.crop-image {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  max-height: 60vh;
-  object-fit: contain;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 12px;
-  padding: 16px 20px;
-  border-top: 1px solid #e5e7eb;
-  justify-content: flex-end;
-}
-
-.modal-footer button {
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-  border: none;
-}
-
-.modal-footer button:active {
-  transform: scale(0.98);
-}
-
-.btn-cancel {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.btn-cancel:hover {
-  background: #e5e7eb;
-}
-
-.btn-close {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.btn-close:hover {
-  background: #fecaca;
-}
-
-.btn-save {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
-}
-
-.btn-save:hover {
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
-  transform: translateY(-1px);
-}
-
-/* Обновляем стили avatar-placeholder для всех шаблонов */
-.classic-template-page .avatar-placeholder,
-.modern-template-page .avatar-placeholder,
-.creative-template-page .avatar-placeholder,
-.it-template-page .avatar-placeholder,
-.professional-template-page .avatar-placeholder {
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.classic-template-page .avatar-placeholder:hover,
-.modern-template-page .avatar-placeholder:hover,
-.creative-template-page .avatar-placeholder:hover,
-.it-template-page .avatar-placeholder:hover,
-.professional-template-page .avatar-placeholder:hover {
-  border-color: #6366f1;
-  background: rgba(99, 102, 241, 0.05);
-}
-
-.classic-template-page .avatar-placeholder .upload-hint,
-.modern-template-page .avatar-placeholder .upload-hint {
-  font-size: 10px;
-  opacity: 0.7;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 2px 6px;
-  border-radius: 8px;
-  margin-top: 4px;
 }

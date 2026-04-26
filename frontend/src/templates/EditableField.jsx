@@ -28,7 +28,7 @@ export function EditableField({
   maxLength,
 }) {
   const [searchParams] = useSearchParams();
-  const isReadOnly = searchParams.get("readonly") === "1" || Boolean(searchParams.get("share"));
+  const isReadOnly = searchParams.get("readonly") === "1";
   const ref = useRef(null);
   const lastValidValueRef = useRef(value);
   const ph = (placeholder || "").toLowerCase();

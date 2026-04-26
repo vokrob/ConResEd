@@ -33,6 +33,7 @@
   margin-bottom: 0;
   max-width: 100%;
   position: relative;
+  z-index: 0;
 }
 
 .classic-template-page .avatar-placeholder {
@@ -68,7 +69,6 @@
   align-items: stretch;
   gap: 12px;
   min-width: 0;
-  position: relative;
 }
 
 .classic-template-page .header-fio {
@@ -80,7 +80,6 @@
   flex-direction: column;
   gap: 8px;
   min-width: 0;
-  position: relative;
 }
 
 .classic-template-page .header-fio-row {
@@ -88,7 +87,6 @@
   max-width: 100%;
   min-width: 0;
   display: block;
-  position: relative;
 }
 
 .classic-template-page .header-fio-row .fio-field {
@@ -103,7 +101,6 @@
   text-align: center;
   overflow-wrap: anywhere;
   word-break: normal;
-  position: relative;
 }
 
 .classic-template-page .header-title {
@@ -115,6 +112,7 @@
   color: #7f8c8d;
   font-style: italic;
   position: relative;
+  z-index: 1;
 }
 
 .classic-template-page .header-title .editable-field {
@@ -124,7 +122,6 @@
   min-width: 0;
   margin: 0;
   text-align: center;
-  position: relative;
 }
 
 .classic-template-page .header-contacts {
@@ -139,6 +136,7 @@
   font-size: 14px;
   color: #555;
   position: relative;
+  z-index: 1;
   text-align: left;
 }
 
@@ -148,6 +146,7 @@
   min-width: 0;
   min-height: 2em;
   position: relative;
+  z-index: 1;
 }
 
 .classic-template-page .header-contact-row .editable-field {
@@ -159,7 +158,6 @@
   user-select: text;
   -webkit-user-select: text;
   cursor: text;
-  position: relative;
 }
 
 .classic-template-page .header-title .editable-field[contenteditable="true"],
