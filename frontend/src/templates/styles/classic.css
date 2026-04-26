@@ -1,0 +1,530 @@
+
+.classic-template-page {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: clamp(10px, 2vw, 16px);
+  background: #f5f5f5;
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.6;
+  color: #0d1117;
+  overflow-x: clip;
+}
+
+.classic-template-page *,
+.classic-template-page *::before,
+.classic-template-page *::after {
+  box-sizing: border-box;
+}
+
+.classic-template-page .resume-container {
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: #fff;
+  padding: clamp(12px, 4vw, 10mm);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.classic-template-page .header {
+  text-align: center;
+  border-bottom: 2px solid #2c3e50;
+  padding-bottom: clamp(20px, 3vw, 26px);
+  margin-bottom: 0;
+  max-width: 100%;
+  position: relative;
+}
+
+.classic-template-page .avatar-placeholder {
+  width: 120px;
+  height: 150px;
+  max-width: 100%;
+  background: #ecf0f1;
+  border: 2px dashed #bdc3c7;
+  border-radius: 4px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #7f8c8d;
+  overflow: hidden;
+  position: relative;
+}
+
+.classic-template-page .avatar-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.classic-template-page .header-meta-below {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 clamp(20px, 3vw, 30px);
+  padding: clamp(18px, 3vw, 28px) 2px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+  position: relative;
+}
+
+.classic-template-page .header-fio {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  position: relative;
+}
+
+.classic-template-page .header-fio-row {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: block;
+  position: relative;
+}
+
+.classic-template-page .header-fio-row .fio-field {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  font-size: clamp(1.15rem, 3.2vw, 1.85rem);
+  font-weight: bold;
+  color: #2c3e50;
+  text-align: center;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  position: relative;
+}
+
+.classic-template-page .header-title {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+  color: #7f8c8d;
+  font-style: italic;
+  position: relative;
+}
+
+.classic-template-page .header-title .editable-field {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  text-align: center;
+  position: relative;
+}
+
+.classic-template-page .header-contacts {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  color: #555;
+  position: relative;
+  text-align: left;
+}
+
+.classic-template-page .header-contact-row {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 2em;
+  position: relative;
+}
+
+.classic-template-page .header-contact-row .editable-field {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  text-align: left;
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+  position: relative;
+}
+
+.classic-template-page .header-title .editable-field[contenteditable="true"],
+.classic-template-page .header-fio-row .fio-field[contenteditable="true"] {
+  cursor: text;
+}
+
+.classic-template-page .section {
+  margin-bottom: clamp(20px, 3vw, 30px);
+  max-width: 100%;
+}
+
+.classic-template-page .section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+  border-bottom: 1px solid #bdc3c7;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.classic-template-page .editable-field {
+  min-height: 1.25em;
+  padding: 5px;
+  border: 1px dashed transparent;
+  border-radius: 3px;
+  transition: border-color 0.2s, background 0.2s;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  color: #111;
+  background: transparent;
+}
+
+.classic-template-page .editable-field:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.classic-template-page .editable-field:focus {
+  outline: none;
+  border-color: #2980b9;
+  background: #fff;
+}
+
+.classic-template-page .editable-field:empty::before {
+  content: attr(data-placeholder);
+  color: #95a5a6;
+  font-style: italic;
+}
+
+.classic-template-page .experience-item,
+.classic-template-page .education-item {
+  margin-bottom: 20px;
+  max-width: 100%;
+}
+
+.classic-template-page .item-header {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  align-items: start;
+  margin-bottom: 5px;
+}
+
+.classic-template-page .item-title {
+  font-weight: bold;
+  color: #2c3e50;
+  font-size: 16px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.classic-template-page .item-title .editable-field {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.classic-template-page .item-date {
+  color: #7f8c8d;
+  font-size: 14px;
+  font-style: italic;
+  min-width: 0;
+  max-width: 100%;
+  text-align: right;
+}
+
+.classic-template-page .item-date .editable-field {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.classic-template-page .item-company {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 8px;
+  max-width: 100%;
+}
+
+.classic-template-page .item-company .editable-field {
+  display: block;
+  width: 100%;
+}
+
+.classic-template-page .item-description {
+  color: #444;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 100%;
+}
+
+.classic-template-page .item-description .editable-field {
+  display: block;
+  width: 100%;
+}
+
+.classic-template-page .summary {
+  font-size: 15px;
+  color: #444;
+  text-align: justify;
+  max-width: 100%;
+}
+
+.classic-template-page .summary .editable-field {
+  display: block;
+  width: 100%;
+}
+
+.classic-template-page .section:last-of-type .editable-field {
+  display: block;
+  width: 100%;
+}
+
+.classic-template-page .skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 100%;
+}
+
+.classic-template-page .skill-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  background: #ecf0f1;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #2c3e50;
+}
+
+.classic-template-page .skill-row .editable-field {
+  width: 100%;
+  min-width: 0;
+}
+
+.classic-template-page .experience-controls {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 100%;
+}
+
+.classic-template-page .btn-add,
+.classic-template-page .btn-remove {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.classic-template-page .btn-add {
+  background: #3498db;
+  color: #fff;
+}
+
+.classic-template-page .btn-add:hover {
+  background: #2980b9;
+}
+
+.classic-template-page .btn-remove {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.classic-template-page .btn-remove:hover {
+  background: #c0392b;
+}
+
+.classic-template-page .btn-remove:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.classic-template-page .item-remove-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #f3f4f6;
+  color: #7f1d1d;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.classic-template-page .template-nav {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.classic-template-page .template-nav a {
+  text-decoration: none;
+  background: #2c3e50;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 4px;
+  flex: 0 1 auto;
+  text-align: center;
+}
+
+.classic-template-page .template-nav button {
+  border: none;
+  background: #c0392b;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 0 1 auto;
+}
+
+.classic-template-page .section,
+.classic-template-page .experience-item,
+.classic-template-page .education-item {
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.classic-template-page .print-priority-high {
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.classic-template-page .print-priority-medium {
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.classic-template-page .print-priority-low {
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+@media print {
+  .classic-template-page {
+    background: #fff;
+    padding: 0;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .classic-template-page .template-nav,
+  .classic-template-page .experience-controls,
+  .classic-template-page .item-remove-btn {
+    display: none !important;
+  }
+
+  .classic-template-page .resume-container {
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .classic-template-page .editable-field {
+    border: none !important;
+    background: transparent !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .classic-template-page {
+    padding: 10px;
+  }
+
+  .classic-template-page .template-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(245, 245, 245, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 0;
+    margin-bottom: 10px;
+    border-radius: 0;
+  }
+
+  .classic-template-page .template-nav a,
+  .classic-template-page .template-nav button {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .classic-template-page .resume-container {
+    min-height: auto;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  .classic-template-page .item-header {
+    grid-template-columns: 1fr;
+  }
+
+  .classic-template-page .item-date {
+    text-align: left;
+  }
+
+  .classic-template-page .item-date .editable-field {
+    text-align: left;
+  }
+
+  .classic-template-page .skill-row {
+    grid-template-columns: 1fr;
+  }
+}

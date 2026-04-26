@@ -1,0 +1,589 @@
+.professional-template-page {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 16px;
+  background: #fff;
+  font-family: 'Calibri', 'Arial', sans-serif;
+  line-height: 1.5;
+  color: #111;
+}
+
+.professional-template-page *,
+.professional-template-page *::before,
+.professional-template-page *::after {
+  box-sizing: border-box;
+}
+
+.professional-template-page .resume-container {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* Верхняя панель – тёмно-синяя */
+.professional-template-page .top-bar {
+  background: #1e3a5f;
+  color: white;
+  padding: 15px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.professional-template-page .contact-info {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.professional-template-page .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* Текст контактов белый, при наведении и редактировании – чёрный */
+.professional-template-page .top-bar .contact-item .editable-field {
+  color: white;
+}
+
+.professional-template-page .top-bar .contact-item .editable-field:hover,
+.professional-template-page .top-bar .contact-item .editable-field:focus {
+  color: #111;
+  background: #fff;
+}
+
+.professional-template-page .contact-icon {
+  font-size: 14px;
+}
+
+.professional-template-page .header {
+  padding: 40px 50px;
+  background: #f8f9fa;
+  border-bottom: 3px solid #1e3a5f;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.professional-template-page .avatar-placeholder {
+  width: 120px;
+  height: 150px;
+  background: #e8f0f8;
+  border: 2px dashed #1e3a5f;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.professional-template-page .avatar-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.professional-template-page .name-block {
+  flex: 1;
+}
+
+/* Размер шрифта ФИО как на других шаблонах (42px) и жирное начертание, ограничение длины */
+.professional-template-page .name {
+  font-size: 42px;
+  font-weight: 800;
+  color: #1e3a5f;
+  letter-spacing: 1px;
+}
+
+.professional-template-page .name .editable-field {
+  font-size: inherit;
+  font-weight: inherit;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.professional-template-page .credentials {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* Целевая позиция – отдельный блок под ФИО */
+.professional-template-page .target-position-wrapper {
+  padding: 20px 50px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.professional-template-page .target-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.professional-template-page .target-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e3a5f;
+}
+
+.professional-template-page .content {
+  padding: 40px 50px;
+}
+
+.professional-template-page .one-column {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.professional-template-page .section {
+  margin-bottom: 0;
+}
+
+.professional-template-page .section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #1e3a5f;
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #1e3a5f;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.professional-template-page .section-icon {
+  width: 24px;
+  height: 24px;
+  background: #1e3a5f;
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* Увеличенный шрифт для всех текстовых полей ниже шапки, с переносом */
+.professional-template-page .editable-field {
+  min-height: 20px;
+  padding: 6px 8px;
+  border: 1px dashed transparent;
+  border-radius: 3px;
+  transition: all 0.2s;
+  color: #333;
+  background: transparent;
+  width: 100%;
+  display: inline-block;
+  font-size: 16px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.professional-template-page .editable-field:hover {
+  border-color: #1e3a5f;
+  background: #f0f4f8;
+}
+
+.professional-template-page .editable-field:focus {
+  outline: none;
+  border-color: #2c5282;
+  background: #fff;
+}
+
+.professional-template-page .editable-field:empty:before {
+  content: attr(data-placeholder);
+  color: #999;
+  font-style: italic;
+}
+
+.professional-template-page .summary-box {
+  background: #f8f9fa;
+  padding: 20px;
+  border-left: 4px solid #1e3a5f;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.professional-template-page .experience-item {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.professional-template-page .experience-item:last-child {
+  border-bottom: none;
+}
+
+.professional-template-page .item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.professional-template-page .item-title {
+  font-weight: 700;
+  color: #1e3a5f;
+  font-size: 18px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .item-date {
+  color: #666;
+  font-size: 15px;
+  font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .item-company {
+  color: #555;
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .item-location {
+  color: #888;
+  font-size: 14px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .item-description {
+  color: #444;
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 10px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .achievements-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.professional-template-page .achievements-list li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 6px;
+  font-size: 15px;
+  color: #555;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .achievements-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: #1e3a5f;
+  font-weight: bold;
+}
+
+.professional-template-page .sidebar-section {
+  margin-bottom: 30px;
+}
+
+.professional-template-page .sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #1e3a5f;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1e3a5f;
+}
+
+.professional-template-page .skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.professional-template-page .skill-tag {
+  background: #e8f0f8;
+  color: #1e3a5f;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .cert-item {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dotted #ddd;
+  position: relative;
+}
+
+.professional-template-page .cert-item:last-child {
+  border-bottom: none;
+}
+
+.professional-template-page .cert-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 15px;
+  margin-bottom: 3px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .cert-org {
+  color: #666;
+  font-size: 14px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .cert-date {
+  color: #888;
+  font-size: 13px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .language-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dotted #ddd;
+}
+
+.professional-template-page .language-name {
+  font-weight: 500;
+  color: #333;
+  font-size: 15px;
+  flex: 1;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .language-level {
+  color: #666;
+  font-size: 14px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professional-template-page .experience-controls {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.professional-template-page .btn-add,
+.professional-template-page .btn-remove {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.professional-template-page .btn-add {
+  background: #1e3a5f;
+  color: white;
+}
+
+.professional-template-page .btn-add:hover {
+  background: #2c5282;
+}
+
+.professional-template-page .btn-remove {
+  background: #e8f0f8;
+  color: #1e3a5f;
+  border: 1px solid #1e3a5f;
+}
+
+.professional-template-page .btn-remove:hover {
+  background: #1e3a5f;
+  color: white;
+}
+
+.professional-template-page .btn-remove:disabled {
+  background: #f0f0f0;
+  color: #999;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+.professional-template-page .item-remove-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #e8f0f8;
+  color: #1e3a5f;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.professional-template-page .item-remove-btn:hover {
+  background: #1e3a5f;
+  color: white;
+}
+
+.professional-template-page .template-nav {
+  max-width: 210mm;
+  margin: 0 auto 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.professional-template-page .template-nav a {
+  text-decoration: none;
+  background: #1e3a5f;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 5px;
+}
+
+.professional-template-page .template-nav button {
+  border: none;
+  background: #c0392b;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Расширение полей под шапкой и увеличение шрифта */
+.professional-template-page .top-bar .editable-field,
+.professional-template-page .target-title .editable-field,
+.professional-template-page .credentials .editable-field {
+  font-size: 16px;
+}
+
+.professional-template-page .section,
+.professional-template-page .sidebar-section,
+.professional-template-page .experience-item,
+.professional-template-page .cert-item,
+.professional-template-page .language-item {
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.professional-template-page .print-priority-high { break-inside: avoid-page; page-break-inside: avoid; }
+.professional-template-page .print-priority-medium { break-inside: avoid-page; page-break-inside: avoid; }
+.professional-template-page .print-priority-low { break-inside: auto; page-break-inside: auto; }
+
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+@media print {
+  .professional-template-page {
+    background: white;
+    padding: 0;
+  }
+  .professional-template-page .resume-container {
+    box-shadow: none;
+  }
+  .professional-template-page .editable-field {
+    border: none;
+  }
+  .professional-template-page .experience-controls,
+  .professional-template-page .item-remove-btn {
+    display: none;
+  }
+  .professional-template-page .resume-container {
+    width: 190mm;
+    min-height: auto;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .professional-template-page {
+    padding: 12px 10px;
+  }
+
+  .professional-template-page .template-nav {
+    max-width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    padding: 10px 0;
+    margin: 0 0 10px;
+  }
+
+  .professional-template-page .template-nav a,
+  .professional-template-page .template-nav button {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .professional-template-page .resume-container {
+    max-width: 100%;
+    min-height: auto;
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+
+  .professional-template-page .top-bar {
+    display: grid;
+    gap: 10px;
+  }
+
+  .professional-template-page .contact-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .professional-template-page .name {
+    font-size: 32px;
+  }
+}
