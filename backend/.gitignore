@@ -2,13 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.mypy_cache/
-.venv/
-venv/
-
 *.so
 .Python
+env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -29,8 +27,20 @@ wheels/
 instance/
 .webassets-cache
 
-# IDE / редактор
+# Переменные окружения
+.env
+.venv
+
+# IDE
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
+
+# ОС
+.DS_Store
+Thumbs.db
+
+# Журналы
+*.log
