@@ -6,11 +6,13 @@ get_token.py
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
 *.so
 .Python
-env/
-venv/
-ENV/
 build/
 develop-eggs/
 dist/
@@ -31,20 +33,8 @@ wheels/
 instance/
 .webassets-cache
 
-# Переменные окружения
-.env
-.venv
-
-# IDE
+# IDE / редактор
 .vscode/
-.idea/
 *.swp
 *.swo
 *~
-
-# ОС
-.DS_Store
-Thumbs.db
-
-# Журналы
-*.log
