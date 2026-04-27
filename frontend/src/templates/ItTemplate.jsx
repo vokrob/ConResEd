@@ -1,8 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { buildKeyList } from "./resumeNormalize.js";
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
+import { ShareQrFooter } from "./ShareQrFooter.jsx";
+import { PhotoUploader } from "../components/PhotoUploader.jsx";
+import { ResumeUploader } from "./ResumeUploader.jsx";
 import {
   itDescriptors,
   itExpBase,
@@ -18,11 +21,29 @@ import {
 } from "./itDescriptors.js";
 import "./styles/it.css";
 
+const COUNTS_KEY = "resume-counts-it";
+
 export default function ItTemplate() {
-  const ctrl = useResumeTemplateController();
-  const [techCount, setTechCount] = useState(5);
-  const [projectCount, setProjectCount] = useState(1);
-  const [certCount, setCertCount] = useState(1);
+  const ctrl = useResumeTemplateController({ templateId: "it" });
+  const saved = JSON.parse(localStorage.getItem(COUNTS_KEY) || "null");
+  const [techCount, setTechCount] = useState(saved?.tech || 5);
+  const [projectCount, setProjectCount] = useState(saved?.projects || 1);
+  const [certCount, setCertCount] = useState(saved?.certificates || 1);
+
+  useEffect(() => {
+    if (ctrl.parseCounts) {
+      if (typeof ctrl.parseCounts.tech === "number") setTechCount(Math.max(1, ctrl.parseCounts.tech));
+      if (typeof ctrl.parseCounts.certificates === "number") setCertCount(Math.max(1, ctrl.parseCounts.certificates));
+    }
+  }, [ctrl.parseCounts]);
+
+  useEffect(() => {
+    localStorage.setItem(COUNTS_KEY, JSON.stringify({
+      tech: techCount,
+      projects: projectCount,
+      certificates: certCount,
+    }));
+  }, [techCount, projectCount, certCount]);
 
   const {
     fieldValues,
@@ -36,6 +57,16 @@ export default function ItTemplate() {
     saveToCabinet,
     ready,
     readOnly,
+    embed,
+    publicUrl,
+    photo,
+    setPhoto,
+    uploadResumeFile,
+    resetParsedFields,
+    isParsingResume,
+    parseWarnings,
+    parseError,
+    hasParsedData,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -112,6 +143,15 @@ export default function ItTemplate() {
     setTechCount(5);
     setProjectCount(1);
     setCertCount(1);
+    localStorage.removeItem(COUNTS_KEY);
+  }, [clearCtrl]);
+
+  const handleNavigateHome = useCallback(() => {
+    clearCtrl();
+    setTechCount(5);
+    setProjectCount(1);
+    setCertCount(1);
+    window.location.href = "/";
   }, [clearCtrl]);
 
   const structure = { experience: experienceCount, education: educationCount };
@@ -123,6 +163,16 @@ export default function ItTemplate() {
 
   const navExtra = (
     <>
+      {!readOnly && (
+        <ResumeUploader
+          onUpload={uploadResumeFile}
+          onResetParsed={resetParsedFields}
+          isLoading={isParsingResume}
+          warnings={parseWarnings}
+          error={parseError}
+          hasParsedData={hasParsedData}
+        />
+      )}
       {!readOnly && (
         <button type="button" onClick={save} style={{ background: "#166534" }}>
           Сохранить в кабинет
@@ -141,10 +191,20 @@ export default function ItTemplate() {
 
   return (
     <div className="it-template-page">
-      <TemplateNav extraActions={navExtra} />
+      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <header className="header">
-          <div className="avatar-placeholder">📷 Фото</div>
+          {!readOnly && (
+            <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
+          )}
+          {readOnly && photo && (
+            <div className="avatar-placeholder">
+              <img src={photo} alt="Фото" />
+            </div>
+          )}
+          {readOnly && !photo && (
+            <div className="avatar-placeholder">📷 Фото</div>
+          )}
           <div className="header-info">
             <div className="name">
               <EditableField fio fieldKey={headerKeys[0]} value={fieldValues[headerKeys[0]]} onChange={setField} placeholder="Фамилия" />
@@ -265,6 +325,7 @@ export default function ItTemplate() {
           <EditableField fieldKey={extraKey} value={fieldValues[extraKey]} onChange={setField} placeholder="Языки, дополнительные курсы" />
         </section>
       </div>
+      {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
     </div>
   );
 }

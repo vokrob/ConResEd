@@ -1,7 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
+import { ShareQrFooter } from "./ShareQrFooter.jsx";
+import { PhotoUploader } from "../components/PhotoUploader.jsx";
+import { ResumeUploader } from "./ResumeUploader.jsx";
 import {
   professionalDescriptors,
   professionalSkillSectionLength,
@@ -13,7 +16,6 @@ import {
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import "./styles/professional.css";
 
-// Новая функция для удаления конкретного навыка из плоского списка
 function remapProfessionalRemoveSkillAt(
   fieldValues,
   exp,
@@ -28,7 +30,6 @@ function remapProfessionalRemoveSkillAt(
   const oldK = buildKeyList(oldD);
   const newK = buildKeyList(newD);
   const skillsStart = professionalSkillsDescriptorStart(exp, edu);
-  // Первое поле в блоке навыков — заголовок категории (мы его игнорируем, но он есть)
   const removePosition = skillsStart + 1 + removeIdx;
   const next = {};
   let ni = 0;
@@ -41,11 +42,30 @@ function remapProfessionalRemoveSkillAt(
   return next;
 }
 
+const COUNTS_KEY = "resume-counts-professional";
+
 export default function ProfessionalTemplate() {
-  const ctrl = useResumeTemplateController();
-  const [skillCount, setSkillCount] = useState(4);
-  const [certCount, setCertCount] = useState(1);
-  const [langCount, setLangCount] = useState(1);
+  const ctrl = useResumeTemplateController({ templateId: "professional" });
+  const saved = JSON.parse(localStorage.getItem(COUNTS_KEY) || "null");
+  const [skillCount, setSkillCount] = useState(saved?.skills || 4);
+  const [certCount, setCertCount] = useState(saved?.certificates || 1);
+  const [langCount, setLangCount] = useState(saved?.languages || 1);
+
+  useEffect(() => {
+    if (ctrl.parseCounts) {
+      if (typeof ctrl.parseCounts.skills === "number") setSkillCount(Math.max(1, ctrl.parseCounts.skills));
+      if (typeof ctrl.parseCounts.certificates === "number") setCertCount(Math.max(1, ctrl.parseCounts.certificates));
+      if (typeof ctrl.parseCounts.languages === "number") setLangCount(Math.max(1, ctrl.parseCounts.languages));
+    }
+  }, [ctrl.parseCounts]);
+
+  useEffect(() => {
+    localStorage.setItem(COUNTS_KEY, JSON.stringify({
+      skills: skillCount,
+      certificates: certCount,
+      languages: langCount,
+    }));
+  }, [skillCount, certCount, langCount]);
 
   const {
     fieldValues,
@@ -59,9 +79,18 @@ export default function ProfessionalTemplate() {
     saveToCabinet,
     ready,
     readOnly,
+    embed,
+    publicUrl,
+    photo,
+    setPhoto,
+    uploadResumeFile,
+    resetParsedFields,
+    isParsingResume,
+    parseWarnings,
+    parseError,
+    hasParsedData,
   } = ctrl;
 
-  // Используем categorySkillCounts как [skillCount] для плоского списка
   const categorySkillCounts = useMemo(() => [skillCount], [skillCount]);
 
   const descriptors = useMemo(
@@ -83,7 +112,7 @@ export default function ProfessionalTemplate() {
   const expBase = 10;
   const eduBase = expBase + experienceCount * 6;
   const skillsStart = professionalSkillsDescriptorStart(experienceCount, educationCount);
-  const skillKeys = keys.slice(skillsStart + 1, skillsStart + 1 + skillCount); // пропускаем заголовок категории
+  const skillKeys = keys.slice(skillsStart + 1, skillsStart + 1 + skillCount);
   const certStart = skillsStart + 1 + skillCount;
   const certKeys = keys.slice(certStart, certStart + certCount * 3);
   const langStart = certStart + certCount * 3;
@@ -243,6 +272,15 @@ export default function ProfessionalTemplate() {
     setSkillCount(4);
     setCertCount(1);
     setLangCount(1);
+    localStorage.removeItem(COUNTS_KEY);
+  }, [clearCtrl]);
+
+  const handleNavigateHome = useCallback(() => {
+    clearCtrl();
+    setSkillCount(4);
+    setCertCount(1);
+    setLangCount(1);
+    window.location.href = "/";
   }, [clearCtrl]);
 
   const structure = { experience: experienceCount, education: educationCount };
@@ -254,21 +292,35 @@ export default function ProfessionalTemplate() {
 
   const navExtra = (
     <>
-      <button type="button" onClick={save} style={{ background: "#166534" }}>
-        Сохранить в кабинет
-      </button>
+      {!readOnly && (
+        <ResumeUploader
+          onUpload={uploadResumeFile}
+          onResetParsed={resetParsedFields}
+          isLoading={isParsingResume}
+          warnings={parseWarnings}
+          error={parseError}
+          hasParsedData={hasParsedData}
+        />
+      )}
+      {!readOnly && (
+        <button type="button" onClick={save} style={{ background: "#166534" }}>
+          Сохранить в кабинет
+        </button>
+      )}
       <button type="button" onClick={() => window.print()} style={{ background: "#1d4ed8" }}>
         Скачать PDF (A4)
       </button>
-      <button type="button" onClick={clearAll}>
-        Очистить все поля
-      </button>
+      {!readOnly && (
+        <button type="button" onClick={clearAll}>
+          Очистить все поля
+        </button>
+      )}
     </>
   );
 
   return (
     <div className="professional-template-page">
-      <TemplateNav extraActions={navExtra} />
+      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <div className="top-bar print-priority-high">
           <div className="contact-info">
@@ -292,7 +344,17 @@ export default function ProfessionalTemplate() {
         </div>
 
         <header className="header print-priority-high">
-          <div className="avatar-placeholder">📷 Фото</div>
+          {!readOnly && (
+            <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
+          )}
+          {readOnly && photo && (
+            <div className="avatar-placeholder">
+              <img src={photo} alt="Фото" />
+            </div>
+          )}
+          {readOnly && !photo && (
+            <div className="avatar-placeholder">📷 Фото</div>
+          )}
           <div className="name-block">
             <div>
               <div className="name">
@@ -533,6 +595,7 @@ export default function ProfessionalTemplate() {
           </div>
         </div>
       </div>
+      {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
     </div>
   );
 }

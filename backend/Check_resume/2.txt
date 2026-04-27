@@ -1,0 +1,60 @@
+Смирнова Екатерина Владимировна
+Lead Backend Engineer / Tech Lead
+Санкт-Петербург, Россия
+ekaterina.smirnova@techmail.ru | +7 (812) 555-01-99
+GitHub: github.com/ekaterina-dev | LinkedIn: linkedin.com/in/ekaterina-smirnova
+
+ПРОФЕССИОНАЛЬНЫЙ ПРОФИЛЬ
+Технический лидер с 8-летним опытом в backend-разработке. Специализируюсь на архитектуре микросервисов, оптимизации высоконагруженных систем и менторстве команд.
+
+ОПЫТ РАБОТЫ
+
+Tech Lead | ООО "Яндекс.Облако" | Март 2023 – Настоящее время
+- Руководство командой из 7 backend-разработчиков
+- Проектирование архитектуры нового платежного шлюза (99.99% uptime)
+- Внедрение практик code review, CI/CD, мониторинга (Prometheus, Grafana)
+
+Senior Backend Developer | ООО "Тинькофф" | Январь 2021 – Февраль 2023
+- Разработка ядра процессинга транзакций (10 000+ RPS)
+- Оптимизация времени отклика API с 450мс до 80мс
+- Менторство 3 junior-разработчиков
+
+Backend Developer | ООО "ВКонтакте" | Июнь 2019 – Декабрь 2020
+- Реализация системы уведомлений в реальном времени (WebSocket)
+- Интеграция с внешними провайдерами (SMS, email, push)
+
+Python Developer | ООО "Лаборатория Касперского" | Сентябрь 2017 – Май 2019
+- Разработка модулей анализа трафика на Python
+- Написание unit- и integration-тестов (покрытие 85%+)
+
+Junior Developer | ООО "Стартап.ру" | Январь 2017 – Август 2017
+- Поддержка legacy-кода на Django
+- Исправление багов, написание документации
+
+ОБРАЗОВАНИЕ
+
+СПбГУ, Факультет прикладной математики и процессов управления | 2013–2017
+Специальность: Прикладная математика и информатика | Диплом с отличием
+
+КУРСЫ И СЕРТИФИКАТЫ
+- AWS Certified Solutions Architect – Associate (2024)
+- Kubernetes Administrator (CKA) (2023)
+- Яндекс.Практикум: «Архитектура высоконагруженных систем» (2022)
+- Coursera: «Designing Data-Intensive Applications» (2021)
+
+НАВЫКИ
+Языки: Python, Go, SQL, Bash
+Фреймворки: FastAPI, Django, Flask, SQLAlchemy, Celery
+Базы данных: PostgreSQL, Redis, MongoDB, ClickHouse
+Инфраструктура: Docker, Kubernetes, Terraform, AWS, GitLab CI
+Мониторинг: Prometheus, Grafana, ELK Stack
+Soft skills: лидерство, менторство, коммуникация, тайм-менеджмент
+
+ЯЗЫКИ
+Русский — родной
+Английский — C1 (Advanced)
+Немецкий — A2 (Basic)
+
+ССЫЛКИ
+Портфолио: ekaterina-dev.ru
+Блог: habr.com/users/ekaterina-dev

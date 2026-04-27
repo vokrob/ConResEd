@@ -1,7 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
+import { ShareQrFooter } from "./ShareQrFooter.jsx";
+import { PhotoUploader } from "../components/PhotoUploader.jsx";
+import { ResumeUploader } from "./ResumeUploader.jsx";
 import {
   creativeDescriptors,
   creativeExpBase,
@@ -12,9 +15,22 @@ import {
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import "./styles/creative.css";
 
+const COUNTS_KEY = "resume-counts-creative";
+
 export default function CreativeTemplate() {
-  const ctrl = useResumeTemplateController();
-  const [skillCount, setSkillCount] = useState(4);
+  const ctrl = useResumeTemplateController({ templateId: "creative" });
+  const saved = JSON.parse(localStorage.getItem(COUNTS_KEY) || "null");
+  const [skillCount, setSkillCount] = useState(saved?.skills || 4);
+
+  useEffect(() => {
+    if (ctrl.parseCounts && typeof ctrl.parseCounts.skills === "number") {
+      setSkillCount(Math.max(1, ctrl.parseCounts.skills));
+    }
+  }, [ctrl.parseCounts]);
+
+  useEffect(() => {
+    localStorage.setItem(COUNTS_KEY, JSON.stringify({ skills: skillCount }));
+  }, [skillCount]);
 
   const {
     fieldValues,
@@ -28,6 +44,16 @@ export default function CreativeTemplate() {
     saveToCabinet,
     ready,
     readOnly,
+    embed,
+    publicUrl,
+    photo,
+    setPhoto,
+    uploadResumeFile,
+    resetParsedFields,
+    isParsingResume,
+    parseWarnings,
+    parseError,
+    hasParsedData,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -76,19 +102,12 @@ export default function CreativeTemplate() {
   const addSkill = () => setSkillCount((n) => n + 1);
   const removeSkillAt = (rowIndex) => {
     if (skillCount <= 1) return;
-    const oldD = creativeDescriptors(experienceCount, educationCount, skillCount);
-    const newD = creativeDescriptors(experienceCount, educationCount, skillCount - 1);
-    const oldK = buildKeyList(oldD);
-    const newK = buildKeyList(newD);
-    const removeIdx = 13 + rowIndex;
-    const next = {};
-    let ni = 0;
-    for (let oi = 0; oi < oldK.length; oi++) {
-      if (oi === removeIdx) continue;
-      const v = fieldValues[oldK[oi]];
-      if (v) next[newK[ni]] = v;
-      ni++;
-    }
+    const next = remapCreativeRemoveSkill(
+      fieldValues,
+      experienceCount,
+      educationCount,
+      skillCount,
+    );
     replaceFieldValues(next);
     setSkillCount((n) => n - 1);
   };
@@ -96,6 +115,13 @@ export default function CreativeTemplate() {
   const clearAll = useCallback(() => {
     clearCtrl();
     setSkillCount(4);
+    localStorage.removeItem(COUNTS_KEY);
+  }, [clearCtrl]);
+
+  const handleNavigateHome = useCallback(() => {
+    clearCtrl();
+    setSkillCount(4);
+    window.location.href = "/";
   }, [clearCtrl]);
 
   const structure = { experience: experienceCount, education: educationCount };
@@ -107,25 +133,49 @@ export default function CreativeTemplate() {
 
   const navExtra = (
     <>
-      <button type="button" onClick={save} style={{ background: "#166534" }}>
-        Сохранить в кабинет
-      </button>
+      {!readOnly && (
+        <ResumeUploader
+          onUpload={uploadResumeFile}
+          onResetParsed={resetParsedFields}
+          isLoading={isParsingResume}
+          warnings={parseWarnings}
+          error={parseError}
+          hasParsedData={hasParsedData}
+        />
+      )}
+      {!readOnly && (
+        <button type="button" onClick={save} style={{ background: "#166534" }}>
+          Сохранить в кабинет
+        </button>
+      )}
       <button type="button" onClick={() => window.print()} style={{ background: "#1d4ed8" }}>
         Скачать PDF (A4)
       </button>
-      <button type="button" onClick={clearAll}>
-        Очистить все поля
-      </button>
+      {!readOnly && (
+        <button type="button" onClick={clearAll}>
+          Очистить все поля
+        </button>
+      )}
     </>
   );
 
   return (
     <div className="creative-template-page">
-      <TemplateNav extraActions={navExtra} />
+      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <header className="header print-priority-high">
           <div className="header-content">
-            <div className="avatar-placeholder">📷 Фото</div>
+            {!readOnly && (
+              <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
+            )}
+            {readOnly && photo && (
+              <div className="avatar-placeholder">
+                <img src={photo} alt="Фото" />
+              </div>
+            )}
+            {readOnly && !photo && (
+              <div className="avatar-placeholder">📷 Фото</div>
+            )}
             <div>
               <div className="name-wrapper">
                 <div className="name">
@@ -346,6 +396,7 @@ export default function CreativeTemplate() {
           </div>
         </div>
       </div>
+      {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
     </div>
   );
 }

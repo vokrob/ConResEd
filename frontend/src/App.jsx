@@ -10,15 +10,12 @@ function userInitials(user) {
   }
   return name.slice(0, 2).toUpperCase();
 }
-function buildReadonlyTemplateUrl(item) {
+function buildOwnerReadonlyTemplatePath(item) {
   const url = new URL(`/templates/${item.template_id}`, window.location.origin);
   url.searchParams.set("readonly", "1");
-  if (item.public_token) {
-    url.searchParams.set("share", item.public_token);
-  } else {
-    url.searchParams.set("resumeId", String(item.id));
-  }
-  return url.toString();
+  url.searchParams.set("resumeId", String(item.id));
+  // Keep it an in-app route (without origin) for navigate()
+  return `${url.pathname}${url.search}`;
 }
 export default function App() {
   const navigate = useNavigate();
@@ -470,19 +467,14 @@ export default function App() {
                     </div>
                     <span className="template-row-action" aria-hidden="true">Открыть</span>
                   </button>
-				  <a
-                  className="template-qr-link"
-                  href={buildReadonlyTemplateUrl(item)}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="Открыть QR-версию шаблона"
-                >
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(buildReadonlyTemplateUrl(item))}`}
-                    alt={`QR-код для ${item.title}`}
-                    loading="lazy"
-                  />
-                </a>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-compact"
+                    onClick={() => navigate(buildOwnerReadonlyTemplatePath(item))}
+                    title="Открыть сохранённый шаблон в режиме просмотра"
+                  >
+                    Просмотр
+                  </button>
                   <button
                     type="button"
                     className="btn btn-danger btn-compact"

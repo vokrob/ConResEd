@@ -1,7 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
+import { ShareQrFooter } from "./ShareQrFooter.jsx";
+import { PhotoUploader } from "../components/PhotoUploader.jsx";
+import { ResumeUploader } from "./ResumeUploader.jsx";
 import {
   MODERN_PREFIX,
   modernDescriptors,
@@ -14,7 +17,6 @@ import {
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import "./styles/modern.css";
 
-// Новая функция для удаления конкретного навыка по индексу
 function remapModernRemoveSkillAt(fieldValues, exp, edu, skills, langs, removeIdx) {
   const oldD = modernDescriptors(exp, edu, skills, langs);
   const newD = modernDescriptors(exp, edu, skills - 1, langs);
@@ -33,7 +35,6 @@ function remapModernRemoveSkillAt(fieldValues, exp, edu, skills, langs, removeId
   return next;
 }
 
-// Новая функция для удаления конкретного языка по индексу
 function remapModernRemoveLangAt(fieldValues, exp, edu, skills, oldLang, removeIdx) {
   const newLang = oldLang - 1;
   const oldD = modernDescriptors(exp, edu, skills, oldLang);
@@ -53,10 +54,24 @@ function remapModernRemoveLangAt(fieldValues, exp, edu, skills, oldLang, removeI
   return next;
 }
 
+const COUNTS_KEY = "resume-counts-modern";
+
 export default function ModernTemplate() {
-  const ctrl = useResumeTemplateController();
-  const [skillCount, setSkillCount] = useState(4);
-  const [langCount, setLangCount] = useState(1);
+  const ctrl = useResumeTemplateController({ templateId: "modern" });
+  const saved = JSON.parse(localStorage.getItem(COUNTS_KEY) || "null");
+  const [skillCount, setSkillCount] = useState(saved?.skills || 4);
+  const [langCount, setLangCount] = useState(saved?.languages || 1);
+
+  useEffect(() => {
+    if (ctrl.parseCounts) {
+      if (typeof ctrl.parseCounts.skills === "number") setSkillCount(Math.max(1, ctrl.parseCounts.skills));
+      if (typeof ctrl.parseCounts.languages === "number") setLangCount(Math.max(1, ctrl.parseCounts.languages));
+    }
+  }, [ctrl.parseCounts]);
+
+  useEffect(() => {
+    localStorage.setItem(COUNTS_KEY, JSON.stringify({ skills: skillCount, languages: langCount }));
+  }, [skillCount, langCount]);
 
   const {
     fieldValues,
@@ -70,6 +85,16 @@ export default function ModernTemplate() {
     saveToCabinet,
     ready,
     readOnly,
+    embed,
+    publicUrl,
+    photo,
+    setPhoto,
+    uploadResumeFile,
+    resetParsedFields,
+    isParsingResume,
+    parseWarnings,
+    parseError,
+    hasParsedData,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -152,6 +177,14 @@ export default function ModernTemplate() {
     clearCtrl();
     setSkillCount(4);
     setLangCount(1);
+    localStorage.removeItem(COUNTS_KEY);
+  }, [clearCtrl]);
+
+  const handleNavigateHome = useCallback(() => {
+    clearCtrl();
+    setSkillCount(4);
+    setLangCount(1);
+    window.location.href = "/";
   }, [clearCtrl]);
 
   const structure = { experience: experienceCount, education: educationCount };
@@ -163,27 +196,51 @@ export default function ModernTemplate() {
 
   const navExtra = (
     <>
-      <button type="button" onClick={save} style={{ background: "#166534" }}>
-        Сохранить в кабинет
-      </button>
+      {!readOnly && (
+        <ResumeUploader
+          onUpload={uploadResumeFile}
+          onResetParsed={resetParsedFields}
+          isLoading={isParsingResume}
+          warnings={parseWarnings}
+          error={parseError}
+          hasParsedData={hasParsedData}
+        />
+      )}
+      {!readOnly && (
+        <button type="button" onClick={save} style={{ background: "#166534" }}>
+          Сохранить в кабинет
+        </button>
+      )}
       <button type="button" onClick={() => window.print()} style={{ background: "#1d4ed8" }}>
         Скачать PDF (A4)
       </button>
-      <button type="button" onClick={clearAll}>
-        Очистить все поля
-      </button>
+      {!readOnly && (
+        <button type="button" onClick={clearAll}>
+          Очистить все поля
+        </button>
+      )}
     </>
   );
 
   return (
     <div className="modern-template-page">
-      <TemplateNav extraActions={navExtra} />
+      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <div className="top-section print-priority-high">
-          <div className="avatar-placeholder">
-            <span>📷</span>
-            <span className="upload-hint">Фото</span>
-          </div>
+          {!readOnly && (
+            <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
+          )}
+          {readOnly && photo && (
+            <div className="avatar-placeholder">
+              <img src={photo} alt="Фото" />
+            </div>
+          )}
+          {readOnly && !photo && (
+            <div className="avatar-placeholder">
+              <span>📷</span>
+              <span className="upload-hint">Фото</span>
+            </div>
+          )}
           <div className="name">
             <span className="bold">
               <EditableField
@@ -446,6 +503,7 @@ export default function ModernTemplate() {
           </div>
         </div>
       </div>
+      {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
     </div>
   );
 }
