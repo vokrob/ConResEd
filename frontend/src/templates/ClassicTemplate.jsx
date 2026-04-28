@@ -1,13 +1,16 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { buildKeyList } from "./resumeNormalize.js";
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import { ShareQrFooter } from "./ShareQrFooter.jsx";
 import { PhotoUploader } from "../components/PhotoUploader.jsx";
+import { ResumeUploader } from "./ResumeUploader.jsx";
 import "./styles/classic.css";
 
 const HEADER_ABOUT = 8;
+const COUNTS_KEY = "resume-counts-classic";
 
 export function classicDescriptors(expCount, eduCount, skillCount) {
   const d = [];
@@ -80,8 +83,20 @@ function remapAfterRemoveEducationRow(fieldValues, rowIndex, exp, oldEdu, skillC
 }
 
 export default function ClassicTemplate() {
+  const navigate = useNavigate();
   const ctrl = useResumeTemplateController({ templateId: "classic" });
-  const [skillCount, setSkillCount] = useState(1);
+  const saved = JSON.parse(localStorage.getItem(COUNTS_KEY) || "null");
+  const [skillCount, setSkillCount] = useState(saved?.skills || 1);
+
+  useEffect(() => {
+    if (ctrl.parseCounts && typeof ctrl.parseCounts.skills === "number") {
+      setSkillCount(Math.max(1, ctrl.parseCounts.skills));
+    }
+  }, [ctrl.parseCounts]);
+
+  useEffect(() => {
+    localStorage.setItem(COUNTS_KEY, JSON.stringify({ skills: skillCount }));
+  }, [skillCount]);
 
   const {
     fieldValues,
@@ -97,8 +112,14 @@ export default function ClassicTemplate() {
     readOnly,
     embed,
     publicUrl,
-	photo,
+    photo,
     setPhoto,
+    uploadResumeFile,
+    resetParsedFields,
+    isParsingResume,
+    parseWarnings,
+    parseError,
+    hasParsedData,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -114,9 +135,7 @@ export default function ClassicTemplate() {
   const skillKeys = keys.slice(skillsBase, skillsBase + skillCount);
   const extraKey = keys[keys.length - 1];
 
-  const addExperience = () => {
-    setExperienceCount((n) => n + 1);
-  };
+  const addExperience = () => setExperienceCount((n) => n + 1);
 
   const removeExperienceAt = (rowIndex) => {
     if (experienceCount <= 1) return;
@@ -172,29 +191,34 @@ export default function ClassicTemplate() {
   const clearAll = useCallback(() => {
     clearCtrl();
     setSkillCount(1);
+    localStorage.removeItem(COUNTS_KEY);
   }, [clearCtrl]);
-  
+
   const handleNavigateHome = useCallback(() => {
     clearCtrl();
     setSkillCount(1);
-    // Переход на главную страницу после очистки
-    window.location.href = "/";
-  }, [clearCtrl]);
-  
-  const structure = { experience: experienceCount, education: educationCount };
+    navigate("/");
+  }, [clearCtrl, navigate]);
 
+  const structure = { experience: experienceCount, education: educationCount };
   const save = () => saveToCabinet("classic", keys, structure);
 
   if (!ready) {
-    return (
-      <div style={{ color: "#fff", textAlign: "center", padding: 40 }}>
-        Загрузка…
-      </div>
-    );
+    return <div style={{ color: "#fff", textAlign: "center", padding: 40 }}>Загрузка…</div>;
   }
 
   const navExtra = (
     <>
+      {!readOnly && (
+        <ResumeUploader
+          onUpload={uploadResumeFile}
+          onResetParsed={resetParsedFields}
+          isLoading={isParsingResume}
+          warnings={parseWarnings}
+          error={parseError}
+          hasParsedData={hasParsedData}
+        />
+      )}
       {!readOnly && (
         <button type="button" onClick={save} style={{ background: "#166534" }}>
           Сохранить в кабинет
@@ -216,7 +240,7 @@ export default function ClassicTemplate() {
       {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
       <div className="resume-container">
         <header className="header print-priority-high">
-		  {!readOnly && (
+          {!readOnly && (
             <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
           )}
           {readOnly && photo && (

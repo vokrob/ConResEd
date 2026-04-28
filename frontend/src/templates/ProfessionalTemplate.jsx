@@ -1,9 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { ShareQrFooter } from "./ShareQrFooter.jsx";
 import { PhotoUploader } from "../components/PhotoUploader.jsx";
+import { ResumeUploader } from "./ResumeUploader.jsx";
 import {
   professionalDescriptors,
   professionalSkillSectionLength,
@@ -15,7 +17,6 @@ import {
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import "./styles/professional.css";
 
-// Новая функция для удаления конкретного навыка из плоского списка
 function remapProfessionalRemoveSkillAt(
   fieldValues,
   exp,
@@ -30,7 +31,6 @@ function remapProfessionalRemoveSkillAt(
   const oldK = buildKeyList(oldD);
   const newK = buildKeyList(newD);
   const skillsStart = professionalSkillsDescriptorStart(exp, edu);
-  // Первое поле в блоке навыков — заголовок категории (мы его игнорируем, но он есть)
   const removePosition = skillsStart + 1 + removeIdx;
   const next = {};
   let ni = 0;
@@ -43,11 +43,31 @@ function remapProfessionalRemoveSkillAt(
   return next;
 }
 
+const COUNTS_KEY = "resume-counts-professional";
+
 export default function ProfessionalTemplate() {
+  const navigate = useNavigate();
   const ctrl = useResumeTemplateController({ templateId: "professional" });
-  const [skillCount, setSkillCount] = useState(4);
-  const [certCount, setCertCount] = useState(1);
-  const [langCount, setLangCount] = useState(1);
+  const saved = JSON.parse(localStorage.getItem(COUNTS_KEY) || "null");
+  const [skillCount, setSkillCount] = useState(saved?.skills || 4);
+  const [certCount, setCertCount] = useState(saved?.certificates || 1);
+  const [langCount, setLangCount] = useState(saved?.languages || 1);
+
+  useEffect(() => {
+    if (ctrl.parseCounts) {
+      if (typeof ctrl.parseCounts.skills === "number") setSkillCount(Math.max(1, ctrl.parseCounts.skills));
+      if (typeof ctrl.parseCounts.certificates === "number") setCertCount(Math.max(1, ctrl.parseCounts.certificates));
+      if (typeof ctrl.parseCounts.languages === "number") setLangCount(Math.max(1, ctrl.parseCounts.languages));
+    }
+  }, [ctrl.parseCounts]);
+
+  useEffect(() => {
+    localStorage.setItem(COUNTS_KEY, JSON.stringify({
+      skills: skillCount,
+      certificates: certCount,
+      languages: langCount,
+    }));
+  }, [skillCount, certCount, langCount]);
 
   const {
     fieldValues,
@@ -63,11 +83,16 @@ export default function ProfessionalTemplate() {
     readOnly,
     embed,
     publicUrl,
-	photo,
+    photo,
     setPhoto,
+    uploadResumeFile,
+    resetParsedFields,
+    isParsingResume,
+    parseWarnings,
+    parseError,
+    hasParsedData,
   } = ctrl;
 
-  // Используем categorySkillCounts как [skillCount] для плоского списка
   const categorySkillCounts = useMemo(() => [skillCount], [skillCount]);
 
   const descriptors = useMemo(
@@ -89,7 +114,7 @@ export default function ProfessionalTemplate() {
   const expBase = 10;
   const eduBase = expBase + experienceCount * 6;
   const skillsStart = professionalSkillsDescriptorStart(experienceCount, educationCount);
-  const skillKeys = keys.slice(skillsStart + 1, skillsStart + 1 + skillCount); // пропускаем заголовок категории
+  const skillKeys = keys.slice(skillsStart + 1, skillsStart + 1 + skillCount);
   const certStart = skillsStart + 1 + skillCount;
   const certKeys = keys.slice(certStart, certStart + certCount * 3);
   const langStart = certStart + certCount * 3;
@@ -249,6 +274,7 @@ export default function ProfessionalTemplate() {
     setSkillCount(4);
     setCertCount(1);
     setLangCount(1);
+    localStorage.removeItem(COUNTS_KEY);
   }, [clearCtrl]);
 
   const handleNavigateHome = useCallback(() => {
@@ -256,8 +282,8 @@ export default function ProfessionalTemplate() {
     setSkillCount(4);
     setCertCount(1);
     setLangCount(1);
-    window.location.href = "/";
-  }, [clearCtrl]);
+    navigate("/");
+  }, [clearCtrl, navigate]);
 
   const structure = { experience: experienceCount, education: educationCount };
   const save = () => saveToCabinet("professional", keys, structure);
@@ -268,6 +294,16 @@ export default function ProfessionalTemplate() {
 
   const navExtra = (
     <>
+      {!readOnly && (
+        <ResumeUploader
+          onUpload={uploadResumeFile}
+          onResetParsed={resetParsedFields}
+          isLoading={isParsingResume}
+          warnings={parseWarnings}
+          error={parseError}
+          hasParsedData={hasParsedData}
+        />
+      )}
       {!readOnly && (
         <button type="button" onClick={save} style={{ background: "#166534" }}>
           Сохранить в кабинет
@@ -310,7 +346,7 @@ export default function ProfessionalTemplate() {
         </div>
 
         <header className="header print-priority-high">
-		  {!readOnly && (
+          {!readOnly && (
             <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
           )}
           {readOnly && photo && (
