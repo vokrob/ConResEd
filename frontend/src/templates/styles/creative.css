@@ -1,0 +1,515 @@
+.creative-template-page {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 16px;
+  background: #fff;
+  font-family: 'Montserrat', 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #111;
+}
+
+.creative-template-page *,
+.creative-template-page *::before,
+.creative-template-page *::after {
+  box-sizing: border-box;
+}
+
+.creative-template-page .resume-container {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: white;
+  border-radius: 30px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* RGB полоса удалена */
+
+.creative-template-page .header {
+  padding: 60px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.creative-template-page .header::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,0,110,0.05) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.creative-template-page .header-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.creative-template-page .avatar-placeholder {
+  width: 140px;
+  height: 180px;
+  background: #f1f3f5;
+  border: 2px dashed #adb5bd;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #6c757d;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.creative-template-page .avatar-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.creative-template-page .name-wrapper {
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.creative-template-page .greeting {
+  font-size: 14px;
+  color: #ff006e;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.creative-template-page .name {
+  font-size: 38px;
+  font-weight: 800;
+  color: #212529;
+  line-height: 1.1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.creative-template-page .name .editable-field {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.creative-template-page .title {
+  font-size: 24px;
+  color: #8338ec;
+  font-weight: 300;
+  margin-top: 10px;
+}
+
+.creative-template-page .tagline {
+  font-size: 18px;
+  color: #495057;
+  margin-top: 20px;
+  font-style: italic;
+  max-width: 500px;
+}
+
+.creative-template-page .stats-row {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.creative-template-page .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.creative-template-page .stat-number {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ff006e;
+}
+
+.creative-template-page .stat-label {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.creative-template-page .content {
+  padding: 60px;
+}
+
+.creative-template-page .one-column {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.creative-template-page .section {
+  margin-bottom: 0;
+}
+
+.creative-template-page .section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: #ff006e;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.creative-template-page .section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #ff006e, transparent);
+}
+
+.creative-template-page .editable-field {
+  min-height: 20px;
+  padding: 10px;
+  border: 1px dashed transparent;
+  border-radius: 8px;
+  transition: all 0.2s;
+  color: #212529;
+  background: transparent;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.creative-template-page .editable-field:hover {
+  border-color: #ff006e;
+  background: rgba(255,0,110,0.05);
+}
+
+.creative-template-page .editable-field:focus {
+  outline: none;
+  border-color: #8338ec;
+  background: rgba(131,56,236,0.05);
+}
+
+.creative-template-page .editable-field:empty:before {
+  content: attr(data-placeholder);
+  color: #adb5bd;
+}
+
+.creative-template-page .contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.creative-template-page .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 14px;
+}
+
+.creative-template-page .contact-icon {
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #ff006e 0%, #8338ec 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.creative-template-page .experience-item {
+  margin-bottom: 30px;
+  padding: 25px;
+  background: #f8f9fa;
+  border-radius: 15px;
+  border-left: 4px solid #ff006e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.creative-template-page .item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.creative-template-page .item-title {
+  font-weight: 700;
+  color: #212529;
+  font-size: 18px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.creative-template-page .item-date {
+  color: #ff006e;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.creative-template-page .item-company {
+  color: #8338ec;
+  font-size: 14px;
+  margin-bottom: 12px;
+  font-weight: 500;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.creative-template-page .item-description {
+  color: #495057;
+  font-size: 14px;
+  line-height: 1.8;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.creative-template-page .skills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.creative-template-page .skill-item {
+  background: #f1f3f5;
+  padding: 12px 15px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #212529;
+  border: 1px solid #dee2e6;
+  position: relative;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.creative-template-page .skill-item .item-remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  margin: 0;
+}
+
+.creative-template-page .highlight-box {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 15px;
+  border: 1px solid #dee2e6;
+}
+
+.creative-template-page .experience-controls {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.creative-template-page .btn-add,
+.creative-template-page .btn-remove {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.creative-template-page .btn-add {
+  background: linear-gradient(135deg, #ff006e 0%, #8338ec 100%);
+  color: white;
+}
+
+.creative-template-page .btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(255,0,110,0.3);
+}
+
+.creative-template-page .btn-remove {
+  background: #e9ecef;
+  color: #ff006e;
+  border: 1px solid #ff006e;
+}
+
+.creative-template-page .btn-remove:hover {
+  background: #ff006e;
+  color: white;
+}
+
+.creative-template-page .btn-remove:disabled {
+  background: #f1f3f5;
+  color: #adb5bd;
+  border-color: #dee2e6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.creative-template-page .item-remove-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #f1f3f5;
+  color: #e03131;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.creative-template-page .template-nav {
+  max-width: 210mm;
+  margin: 0 auto 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.creative-template-page .template-nav a {
+  text-decoration: none;
+  background: #ff006e;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 6px;
+}
+
+.creative-template-page .template-nav button {
+  border: none;
+  background: #c0392b;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.creative-template-page .section,
+.creative-template-page .experience-item {
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.creative-template-page .print-priority-high { break-inside: avoid-page; page-break-inside: avoid; }
+.creative-template-page .print-priority-medium { break-inside: avoid-page; page-break-inside: avoid; }
+.creative-template-page .print-priority-low { break-inside: auto; page-break-inside: auto; }
+
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+@media print {
+  .creative-template-page {
+    background: white;
+    padding: 0;
+  }
+  .creative-template-page .resume-container {
+    background: white;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .creative-template-page .header {
+    background: #f8f9fa;
+  }
+  .creative-template-page .experience-item {
+    background: #f8f9fa;
+    border-left-color: #333;
+  }
+  .creative-template-page .editable-field {
+    border: none;
+    color: #000;
+  }
+  .creative-template-page .experience-controls,
+  .creative-template-page .item-remove-btn {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .creative-template-page {
+    padding: 12px 10px;
+  }
+
+  .creative-template-page .template-nav {
+    max-width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 0;
+    margin: 0 0 10px;
+  }
+
+  .creative-template-page .template-nav a,
+  .creative-template-page .template-nav button {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .creative-template-page .resume-container {
+    max-width: 100%;
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+
+  .creative-template-page .header-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .creative-template-page .stats-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .creative-template-page .name {
+    font-size: 28px;
+  }
+
+  .creative-template-page .content {
+    padding: 30px;
+  }
+
+  .creative-template-page .skills-grid {
+    grid-template-columns: 1fr;
+  }
+}
