@@ -226,8 +226,8 @@ export default function App() {
       );
     })
     .sort((a, b) => {
-      const dateA = new Date(a.updated_at);
-      const dateB = new Date(b.updated_at);
+      const dateA = new Date(a.updated_at || a.created_at || 0);
+      const dateB = new Date(b.updated_at || b.created_at || 0);
       return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
     });
   if (loading.session) {
@@ -454,8 +454,8 @@ export default function App() {
                       <strong>{item.title}</strong>
                       <span>{item.template_id}</span>
                       <span className="saved-date">
-                        {item.updated_at
-                          ? new Date(item.updated_at).toLocaleString('ru-RU', {
+                        {item.updated_at || item.created_at
+                          ? new Date(item.updated_at || item.created_at).toLocaleString('ru-RU', {
                               day: '2-digit',
                               month: '2-digit',
                               year: 'numeric',
