@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { ShareQrFooter } from "./ShareQrFooter.jsx";
 import { PhotoUploader } from "../components/PhotoUploader.jsx";
+import { ResumeUploader } from "./ResumeUploader.jsx";
+import SaveModal from "./SaveModal.jsx";
 import {
   creativeDescriptors,
   creativeExpBase,
@@ -14,9 +17,23 @@ import {
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import "./styles/creative.css";
 
+const COUNTS_KEY = "resume-counts-creative";
+
 export default function CreativeTemplate() {
+  const navigate = useNavigate();
   const ctrl = useResumeTemplateController({ templateId: "creative" });
-  const [skillCount, setSkillCount] = useState(4);
+  const saved = JSON.parse(localStorage.getItem(COUNTS_KEY) || "null");
+  const [skillCount, setSkillCount] = useState(saved?.skills || 4);
+
+  useEffect(() => {
+    if (ctrl.parseCounts && typeof ctrl.parseCounts.skills === "number") {
+      setSkillCount(Math.max(1, ctrl.parseCounts.skills));
+    }
+  }, [ctrl.parseCounts]);
+
+  useEffect(() => {
+    localStorage.setItem(COUNTS_KEY, JSON.stringify({ skills: skillCount }));
+  }, [skillCount]);
 
   const {
     fieldValues,
@@ -32,8 +49,16 @@ export default function CreativeTemplate() {
     readOnly,
     embed,
     publicUrl,
-	photo,
+    photo,
     setPhoto,
+    uploadResumeFile,
+    resetParsedFields,
+    isParsingResume,
+    parseWarnings,
+    parseError,
+    hasParsedData,
+    resumeId,
+    currentTitle,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -82,19 +107,12 @@ export default function CreativeTemplate() {
   const addSkill = () => setSkillCount((n) => n + 1);
   const removeSkillAt = (rowIndex) => {
     if (skillCount <= 1) return;
-    const oldD = creativeDescriptors(experienceCount, educationCount, skillCount);
-    const newD = creativeDescriptors(experienceCount, educationCount, skillCount - 1);
-    const oldK = buildKeyList(oldD);
-    const newK = buildKeyList(newD);
-    const removeIdx = 13 + rowIndex;
-    const next = {};
-    let ni = 0;
-    for (let oi = 0; oi < oldK.length; oi++) {
-      if (oi === removeIdx) continue;
-      const v = fieldValues[oldK[oi]];
-      if (v) next[newK[ni]] = v;
-      ni++;
-    }
+    const next = remapCreativeRemoveSkill(
+      fieldValues,
+      experienceCount,
+      educationCount,
+      skillCount,
+    );
     replaceFieldValues(next);
     setSkillCount((n) => n - 1);
   };
@@ -102,46 +120,73 @@ export default function CreativeTemplate() {
   const clearAll = useCallback(() => {
     clearCtrl();
     setSkillCount(4);
+    localStorage.removeItem(COUNTS_KEY);
   }, [clearCtrl]);
 
   const handleNavigateHome = useCallback(() => {
     clearCtrl();
     setSkillCount(4);
-    window.location.href = "/";
-  }, [clearCtrl]);
-  
+    navigate("/");
+  }, [clearCtrl, navigate]);
+
   const structure = { experience: experienceCount, education: educationCount };
-  const save = () => saveToCabinet("creative", keys, structure);
+  const [saveStatus, setSaveStatus] = useState({ message: "", visible: false, type: "success" });
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [saveMode, setSaveMode] = useState("save");
 
-  if (!ready) {
-    return <div style={{ color: "#fff", textAlign: "center", padding: 40 }}>Загрузка…</div>;
-  }
+  useEffect(() => {
+      if (saveStatus.visible) {
+          const timer = setTimeout(() => setSaveStatus((prev) => ({ ...prev, visible: false })), 3000);
+          return () => clearTimeout(timer);
+      }
+  }, [saveStatus.visible]);
 
-  const navExtra = (
-    <>
-      {!readOnly && (
-        <button type="button" onClick={save} style={{ background: "#166534" }}>
-          Сохранить в кабинет
-        </button>
-      )}
-      <button type="button" onClick={() => window.print()} style={{ background: "#1d4ed8" }}>
-        Скачать PDF (A4)
-      </button>
-      {!readOnly && (
-        <button type="button" onClick={clearAll}>
-          Очистить все поля
-        </button>
-      )}
-    </>
-  );
+  const openSaveModal = (mode) => { setSaveMode(mode); setIsSaveModalOpen(true); };
 
-  return (
-    <div className="creative-template-page">
-      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
-      <div className="resume-container">
+  const handleSaveConfirm = async (title) => {
+      const isCopy = saveMode === "copy";
+      const result = await saveToCabinet("creative", keys, structure, title, isCopy);
+      if (result?.ok) setSaveStatus({ message: result.message, visible: true, type: "success" });
+      else setSaveStatus({ message: result.message || "Ошибка сохранения", visible: true, type: "error" });
+      setIsSaveModalOpen(false);
+  };
+
+  const handleSave = () => openSaveModal("save");
+  const handleSaveCopy = () => openSaveModal("copy");
+  const handleClear = () => { clearAll(); };
+  const handlePdf = () => { window.print(); };
+
+    if (!ready) {
+        return (
+            <div className="template-loader">
+                <div className="loading-spinner" />
+                <span>Загрузка резюме…</span>
+            </div>
+        );
+    }
+
+  const navExtra = !readOnly ? (
+      <ResumeUploader onUpload={uploadResumeFile} onResetParsed={resetParsedFields} isLoading={isParsingResume} warnings={parseWarnings} error={parseError} hasParsedData={hasParsedData} />
+  ) : null;
+
+    return (
+        <div className="creative-template-page">
+            {!embed && (
+              <TemplateNav
+                  extraActions={navExtra}
+                  onNavigateHome={handleNavigateHome}
+                  onSave={handleSave}
+                  onSaveCopy={handleSaveCopy}
+                  onClear={handleClear}
+                  onExportPdf={handlePdf}
+                  hasResumeId={!!resumeId}
+                  readOnly={readOnly}
+                />
+            )}
+            <div className="resume-container">
         <header className="header print-priority-high">
           <div className="header-content">
-		    {!readOnly && (
+            {!readOnly && (
               <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
             )}
             {readOnly && photo && (
@@ -372,7 +417,30 @@ export default function CreativeTemplate() {
           </div>
         </div>
       </div>
-      {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
+            {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
+            {saveStatus.visible && (
+                <div className={`save-toast ${saveStatus.type === "error" ? "error" : ""}`}>
+                    {saveStatus.type === "error" ? "❌ " : "✅ "}
+                    {saveStatus.message}
+                </div>
+            )}
+
+            <SaveModal
+                isOpen={isSaveModalOpen}
+                onClose={() => setIsSaveModalOpen(false)}
+                onSave={handleSaveConfirm}
+                initialTitle={(() => {
+                    if (currentTitle?.trim()) {
+                        if (saveMode === 'copy') return `${currentTitle.trim()} (копия)`;
+                        return currentTitle.trim();
+                    }
+                    return `Резюме ${new Date().toLocaleString('ru-RU', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit'
+                    })}`;
+                })()}
+                isCopyMode={saveMode === "copy"}
+            />
     </div>
   );
 }

@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { buildKeyList } from "./resumeNormalize.js";
 import { EditableField } from "./EditableField.jsx";
 import { TemplateNav } from "./TemplateNav.jsx";
 import { ShareQrFooter } from "./ShareQrFooter.jsx";
 import { PhotoUploader } from "../components/PhotoUploader.jsx";
+import { ResumeUploader } from "./ResumeUploader.jsx";
+import SaveModal from "./SaveModal.jsx";
 import {
   MODERN_PREFIX,
   modernDescriptors,
@@ -16,7 +19,6 @@ import {
 import { useResumeTemplateController } from "./useResumeTemplateController.js";
 import "./styles/modern.css";
 
-// Новая функция для удаления конкретного навыка по индексу
 function remapModernRemoveSkillAt(fieldValues, exp, edu, skills, langs, removeIdx) {
   const oldD = modernDescriptors(exp, edu, skills, langs);
   const newD = modernDescriptors(exp, edu, skills - 1, langs);
@@ -35,7 +37,6 @@ function remapModernRemoveSkillAt(fieldValues, exp, edu, skills, langs, removeId
   return next;
 }
 
-// Новая функция для удаления конкретного языка по индексу
 function remapModernRemoveLangAt(fieldValues, exp, edu, skills, oldLang, removeIdx) {
   const newLang = oldLang - 1;
   const oldD = modernDescriptors(exp, edu, skills, oldLang);
@@ -55,10 +56,25 @@ function remapModernRemoveLangAt(fieldValues, exp, edu, skills, oldLang, removeI
   return next;
 }
 
+const COUNTS_KEY = "resume-counts-modern";
+
 export default function ModernTemplate() {
+  const navigate = useNavigate();
   const ctrl = useResumeTemplateController({ templateId: "modern" });
-  const [skillCount, setSkillCount] = useState(4);
-  const [langCount, setLangCount] = useState(1);
+  const saved = JSON.parse(localStorage.getItem(COUNTS_KEY) || "null");
+  const [skillCount, setSkillCount] = useState(saved?.skills || 4);
+  const [langCount, setLangCount] = useState(saved?.languages || 1);
+
+  useEffect(() => {
+    if (ctrl.parseCounts) {
+      if (typeof ctrl.parseCounts.skills === "number") setSkillCount(Math.max(1, ctrl.parseCounts.skills));
+      if (typeof ctrl.parseCounts.languages === "number") setLangCount(Math.max(1, ctrl.parseCounts.languages));
+    }
+  }, [ctrl.parseCounts]);
+
+  useEffect(() => {
+    localStorage.setItem(COUNTS_KEY, JSON.stringify({ skills: skillCount, languages: langCount }));
+  }, [skillCount, langCount]);
 
   const {
     fieldValues,
@@ -74,8 +90,16 @@ export default function ModernTemplate() {
     readOnly,
     embed,
     publicUrl,
-	photo,
+    photo,
     setPhoto,
+    uploadResumeFile,
+    resetParsedFields,
+    isParsingResume,
+    parseWarnings,
+    parseError,
+    hasParsedData,
+    resumeId,
+    currentTitle,
   } = ctrl;
 
   const descriptors = useMemo(
@@ -158,46 +182,73 @@ export default function ModernTemplate() {
     clearCtrl();
     setSkillCount(4);
     setLangCount(1);
+    localStorage.removeItem(COUNTS_KEY);
   }, [clearCtrl]);
 
   const handleNavigateHome = useCallback(() => {
     clearCtrl();
     setSkillCount(4);
     setLangCount(1);
-    window.location.href = "/";
-  }, [clearCtrl]);
-  
+    navigate("/");
+  }, [clearCtrl, navigate]);
+
   const structure = { experience: experienceCount, education: educationCount };
-  const save = () => saveToCabinet("modern", keys, structure);
+    const [saveStatus, setSaveStatus] = useState({ message: "", visible: false, type: "success" });
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+    const [saveMode, setSaveMode] = useState("save");
 
-  if (!ready) {
-    return <div style={{ color: "#fff", textAlign: "center", padding: 40 }}>Загрузка…</div>;
-  }
+    useEffect(() => {
+        if (saveStatus.visible) {
+            const timer = setTimeout(() => setSaveStatus((prev) => ({ ...prev, visible: false })), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [saveStatus.visible]);
 
-  const navExtra = (
-    <>
-      {!readOnly && (
-        <button type="button" onClick={save} style={{ background: "#166534" }}>
-          Сохранить в кабинет
-        </button>
-      )}
-      <button type="button" onClick={() => window.print()} style={{ background: "#1d4ed8" }}>
-        Скачать PDF (A4)
-      </button>
-      {!readOnly && (
-        <button type="button" onClick={clearAll}>
-          Очистить все поля
-        </button>
-      )}
-    </>
-  );
+    const openSaveModal = (mode) => { setSaveMode(mode); setIsSaveModalOpen(true); };
 
-  return (
-    <div className="modern-template-page">
-      {!embed && <TemplateNav extraActions={navExtra} onNavigateHome={handleNavigateHome} />}
+    const handleSaveConfirm = async (title) => {
+        const isCopy = saveMode === "copy";
+        const result = await saveToCabinet("modern", keys, structure, title, isCopy);
+        if (result?.ok) setSaveStatus({ message: result.message, visible: true, type: "success" });
+        else setSaveStatus({ message: result.message || "Ошибка сохранения", visible: true, type: "error" });
+        setIsSaveModalOpen(false);
+    };
+
+    const handleSave = () => openSaveModal("save");
+    const handleSaveCopy = () => openSaveModal("copy");
+    const handleClear = () => { clearAll(); };
+    const handlePdf = () => { window.print(); };
+
+    if (!ready) {
+        return (
+            <div className="template-loader">
+                <div className="loading-spinner" />
+                <span>Загрузка резюме…</span>
+            </div>
+        );
+    }
+
+    const navExtra = !readOnly ? (
+        <ResumeUploader onUpload={uploadResumeFile} onResetParsed={resetParsedFields} isLoading={isParsingResume} warnings={parseWarnings} error={parseError} hasParsedData={hasParsedData} />
+    ) : null;
+
+    return (
+        <div className="modern-template-page">
+            {!embed && (
+              <TemplateNav
+                  extraActions={navExtra}
+                  onNavigateHome={handleNavigateHome}
+                  onSave={handleSave}
+                  onSaveCopy={handleSaveCopy}
+                  onClear={handleClear}
+                  onExportPdf={handlePdf}
+                  hasResumeId={!!resumeId}
+                  readOnly={readOnly}
+                />
+            )}
       <div className="resume-container">
         <div className="top-section print-priority-high">
-		  {!readOnly && (
+          {!readOnly && (
             <PhotoUploader onPhotoSelect={setPhoto} currentPhoto={photo} />
           )}
           {readOnly && photo && (
@@ -473,7 +524,30 @@ export default function ModernTemplate() {
           </div>
         </div>
       </div>
-      {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
+            {!embed && readOnly && <ShareQrFooter publicUrl={publicUrl} />}
+            {saveStatus.visible && (
+                <div className={`save-toast ${saveStatus.type === "error" ? "error" : ""}`}>
+                    {saveStatus.type === "error" ? "❌ " : "✅ "}
+                    {saveStatus.message}
+                </div>
+            )}
+
+            <SaveModal
+                isOpen={isSaveModalOpen}
+                onClose={() => setIsSaveModalOpen(false)}
+                onSave={handleSaveConfirm}
+                initialTitle={(() => {
+                    if (currentTitle?.trim()) {
+                        if (saveMode === 'copy') return `${currentTitle.trim()} (копия)`;
+                        return currentTitle.trim();
+                    }
+                    return `Резюме ${new Date().toLocaleString('ru-RU', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit'
+                    })}`;
+                })()}
+                isCopyMode={saveMode === "copy"}
+            />
     </div>
   );
 }
