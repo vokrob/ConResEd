@@ -192,6 +192,7 @@
   width: 100%;
   display: inline-block;
   font-size: 16px;
+  min-width: 0;
   word-break: break-word;
   overflow-wrap: break-word;
   white-space: normal;
@@ -514,6 +515,25 @@
 .professional-template-page .print-priority-medium { break-inside: avoid-page; page-break-inside: avoid; }
 .professional-template-page .print-priority-low { break-inside: auto; page-break-inside: auto; }
 
+@media (max-width: 1024px) {
+  .professional-template-page {
+    padding: clamp(10px, 2.5vw, 16px);
+  }
+
+  .professional-template-page .resume-container {
+    max-width: 100%;
+    min-height: auto;
+  }
+
+  .professional-template-page .top-bar,
+  .professional-template-page .header,
+  .professional-template-page .target-position-wrapper,
+  .professional-template-page .content {
+    padding-left: clamp(24px, 5vw, 42px);
+    padding-right: clamp(24px, 5vw, 42px);
+  }
+}
+
 @page {
   size: A4;
   margin: 10mm;
@@ -544,7 +564,8 @@
 
 @media (max-width: 640px) {
   .professional-template-page {
-    padding: 12px 10px;
+    padding: 8px;
+    overflow-x: hidden;
   }
 
   .professional-template-page .template-nav {
@@ -566,15 +587,19 @@
   }
 
   .professional-template-page .resume-container {
+    width: 100%;
     max-width: 100%;
     min-height: auto;
-    padding: 18px 16px;
-    border-radius: 16px;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
   }
 
   .professional-template-page .top-bar {
     display: grid;
     gap: 10px;
+    padding: 14px;
   }
 
   .professional-template-page .contact-info {
@@ -583,7 +608,67 @@
     gap: 10px;
   }
 
+  .professional-template-page .contact-item {
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .professional-template-page .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 22px 14px;
+  }
+
+  .professional-template-page .avatar-placeholder {
+    width: 96px;
+    height: 124px;
+  }
+
+  .professional-template-page .name-block {
+    width: 100%;
+    min-width: 0;
+  }
+
   .professional-template-page .name {
-    font-size: 32px;
+    font-size: 28px;
+    letter-spacing: 0;
+  }
+
+  .professional-template-page .target-position-wrapper {
+    padding: 16px 14px;
+  }
+
+  .professional-template-page .target-label,
+  .professional-template-page .section-title,
+  .professional-template-page .sidebar-title {
+    letter-spacing: 1px;
+  }
+
+  .professional-template-page .target-title {
+    font-size: 18px;
+  }
+
+  .professional-template-page .content {
+    padding: 24px 14px;
+  }
+
+  .professional-template-page .one-column {
+    gap: 28px;
+  }
+
+  .professional-template-page .summary-box {
+    padding: 16px;
+  }
+
+  .professional-template-page .item-header,
+  .professional-template-page .language-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 6px;
+  }
+
+  .professional-template-page .skills-list {
+    gap: 8px;
   }
 }

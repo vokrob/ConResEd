@@ -262,6 +262,7 @@
   overflow-wrap: break-word;
   white-space: normal;
   display: inline-block;
+  min-width: 0;
   max-width: 100%;
 }
 
@@ -301,6 +302,23 @@
   cursor: pointer;
 }
 
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+@media (max-width: 1024px) {
+  .it-template-page {
+    padding: clamp(10px, 2.5vw, 16px);
+  }
+
+  .it-template-page .resume-container {
+    max-width: 100%;
+    min-height: auto;
+    padding: clamp(28px, 5vw, 40px);
+  }
+}
+
 @media print {
   .it-template-page {
     background: white;
@@ -321,13 +339,92 @@
 }
 
 @media (max-width: 640px) {
-  .it-template-page .resume-container {
-    padding: 20px;
+  .it-template-page {
+    padding: 8px;
+    overflow-x: hidden;
   }
+
+  .it-template-page .resume-container {
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    padding: 20px 14px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  }
+
   .it-template-page .header {
     flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
   }
+
+  .it-template-page .avatar-placeholder {
+    width: 96px;
+    height: 124px;
+  }
+
+  .it-template-page .header-info {
+    width: 100%;
+    min-width: 0;
+  }
+
   .it-template-page .name {
     font-size: 28px;
+    gap: 6px;
+  }
+
+  .it-template-page .title {
+    font-size: 17px;
+  }
+
+  .it-template-page .contacts {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .it-template-page .contacts > div {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    align-items: start;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .it-template-page .section {
+    margin-bottom: 26px;
+  }
+
+  .it-template-page .section-title {
+    font-size: 16px;
+  }
+
+  .it-template-page .summary-box,
+  .it-template-page .experience-item,
+  .it-template-page .education-item,
+  .it-template-page .project-item,
+  .it-template-page .cert-item {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .it-template-page .item-header {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .it-template-page .skills-list {
+    gap: 8px;
+  }
+
+  .it-template-page .skill-item {
+    max-width: 100%;
+  }
+
+  .it-template-page .projects-list,
+  .it-template-page .certificates-list {
+    gap: 14px;
   }
 }
