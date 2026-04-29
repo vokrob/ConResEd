@@ -18,7 +18,10 @@ export function TemplateNav({ extraActions = null, onNavigateHome = null }) {
 
   useEffect(() => {
     document.body.classList.add("has-sidebar-nav");
-    return () => document.body.classList.remove("has-sidebar-nav");
+    return () => {
+      document.body.classList.remove("has-sidebar-nav");
+      document.body.classList.remove("sidebar-nav-collapsed");
+    };
   }, []);
 
   useEffect(() => {

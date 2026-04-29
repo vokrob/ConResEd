@@ -1,0 +1,281 @@
+/* ===== ЛЕВОЕ БОКОВОЕ МЕНЮ ===== */
+.template-sidebar-nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid rgba(15, 23, 42, 0.1);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.08);
+    z-index: 10000;
+    /* Flexbox структура: Шапка - Скролл - Подвал */
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+    transition: width 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    font-family: 'Segoe UI', Arial;
+}
+
+    .template-sidebar-nav.collapsed {
+        width: 50px ;
+        padding: 16px 8px ;
+    }
+
+/* Кнопка сворачивания */
+.sidebar-toggle-btn {
+    position: absolute ;
+    right: 10px ;
+    top: 16px ;
+    width: 32px ;
+    height: 32px ;
+    border-radius: 50% ;
+    background: linear-gradient(135deg, #6366f1, #4f46e5) ;
+    color: #fff ;
+    border: 2px solid #fff ;
+    cursor: pointer ;
+    display: flex ;
+    align-items: center ;
+    justify-content: center ;
+    font-size: 12px ;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) ;
+    z-index: 10 ;
+    transition: transform 0.2s ;
+    flex-shrink: 0 ;
+}
+
+    .sidebar-toggle-btn:hover {
+        transform: scale(1.1) ;
+    }
+
+/* 📜 Область со скроллом (Как .template-list в App.jsx) */
+.sidebar-nav-scroll-area {
+    flex-direction: column;
+    overflow-y: auto;
+    padding-right: 6px;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
+
+    /* Кастомный скроллбар */
+    .sidebar-nav-scroll-area::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .sidebar-nav-scroll-area::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .sidebar-nav-scroll-area::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.3);
+        border-radius: 10px;
+    }
+
+        .sidebar-nav-scroll-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.6);
+        }
+
+/* Скрытие контента при свернутом меню */
+.template-sidebar-nav.collapsed .sidebar-nav-scroll-area,
+.template-sidebar-nav.collapsed .sidebar-nav-actions,
+.template-sidebar-nav.collapsed .home-link {
+    opacity: 0;
+    pointer-events: none;
+    max-height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    overflow: hidden;
+    transition: opacity 0.25s ease;
+}
+
+.home-link {
+    margin-top: 40px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
+
+/* Ссылки меню */
+.sidebar-nav-link {
+    display: block;
+    padding: 30px 34px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #0b1020;
+    font-weight: 600;
+    font-size: 0,9rem;
+    transition: all 0.1s;
+    text-align: left;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+    .sidebar-nav-link:hover {
+        background: rgba(99, 102, 241, 0.1) ;
+        color: #4f46e5 ;
+        transform: translateX(4px) ;
+    }
+
+    .sidebar-nav-link.active {
+        background: linear-gradient(135deg, #6366f1, #4f46e5) ;
+        color: #fff ;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) ;
+    }
+
+
+    .sidebar-nav-link::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 3px;
+        opacity: 0.95;
+        border-radius: 10px 10px 0 0;
+    }
+
+/* 🔽 Блок кнопок действий (Фиксирован внизу) */
+.sidebar-nav-actions {
+    flex-shrink: 0;
+    padding-top: 2%;
+    border-top: 1px solid rgba(15, 23, 42, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.resume-uploader {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.resume-upload-btn,
+.resume-reset-btn {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+}
+
+.resume-upload-btn {
+    background: linear-gradient(135deg, #ca8a04, #a16207);
+}
+
+.resume-reset-btn {
+    background: #6b7280;
+}
+
+.resume-upload-btn:disabled,
+.resume-reset-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.resume-upload-dropzone {
+    border: 1px dashed rgba(15, 23, 42, 0.25);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.82rem;
+    text-align: center;
+    color: #334155;
+    background: rgba(148, 163, 184, 0.12);
+}
+
+.resume-upload-dropzone.disabled {
+    opacity: 0.6;
+}
+
+.resume-parse-warnings {
+    background: #fef9c3;
+    border: 1px solid #fde047;
+    color: #854d0e;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.82rem;
+}
+
+.resume-parse-warnings ul {
+    margin: 6px 0 0;
+    padding-left: 16px;
+}
+
+.resume-parse-error {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.82rem;
+}
+
+    .sidebar-nav-actions .btn {
+        width: 100% ;
+        margin-right: 0 ;
+        text-align: center ;
+        padding: 10px 14px ;
+        font-size: 0.9rem ;
+    }
+
+/* Сдвигаем контент страницы вправо */
+body.has-sidebar-nav {
+    padding-left: 280px;
+    transition: opacity 0.25s ease;
+}
+
+body.sidebar-nav-collapsed {
+    padding-left: 60px ;
+}
+
+@media (max-width: 1024px) {
+    .template-sidebar-nav {
+        width: min(82vw, 260px);
+        max-width: calc(100vw - 16px);
+        box-shadow: 8px 0 28px rgba(0, 0, 0, 0.18);
+    }
+
+    .template-sidebar-nav.collapsed {
+        width: 0;
+        padding: 0;
+        border-right: 0;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+        backdrop-filter: none;
+    }
+
+    .sidebar-toggle-btn {
+        right: 9px;
+    }
+	
+	    .template-sidebar-nav.collapsed .sidebar-toggle-btn {
+        left: 10px;
+        right: auto;
+    }
+
+    body.has-sidebar-nav,
+    body.sidebar-nav-collapsed {
+        padding-left: 0;
+    }
+}
+
+/* Скрываем меню при печати */
+@media print {
+    .template-sidebar-nav, .sidebar-toggle-btn {
+        display: none ;
+    }
+
+    body.has-sidebar-nav, body.sidebar-nav-collapsed {
+        padding-left: 0 ;
+    }
+}
