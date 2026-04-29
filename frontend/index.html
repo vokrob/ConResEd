@@ -1,27 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0c1222" />
+	<meta name="application-name" content="ConResEd" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="ConResEd" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>ConResEd</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>ConResEd</h1>
-            <p class="subtitle">Конвертер и редактор резюме </p>
-        </header>
-
-        <div id="status-message" class="status-message"></div>
-
-        <section class="demo-section">
-            <h2>Тест БД</h2>
-            <button id="hello-btn" class="btn">Получить Hello World из БД</button>
-            <div id="hello-result" class="result-box"></div>
-        </section>
-    </div>
-
-    <script src="app.js"></script>
-</body>
+	<link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
+    <link rel="apple-touch-icon" href="/pwa-icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
