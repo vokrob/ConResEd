@@ -151,24 +151,24 @@ body {
   opacity: 0.95;
 }
 
-.template-row[data-variant="classic"]::before {
-  background: linear-gradient(90deg, #64748b, #475569);
+[data-variant="classic"]::before {
+    background: linear-gradient(90deg, #64748b, #475569);
 }
 
-.template-row[data-variant="modern"]::before {
-  background: linear-gradient(90deg, var(--accent), #a855f7);
+[data-variant="modern"]::before {
+    background: linear-gradient(90deg, var(--accent), #a855f7);
 }
 
-.template-row[data-variant="creative"]::before {
-  background: linear-gradient(90deg, #f97316, #ec4899);
+[data-variant="creative"]::before {
+    background: linear-gradient(90deg, #f97316, #ec4899);
 }
 
-.template-row[data-variant="professional"]::before {
-  background: linear-gradient(90deg, #0ea5e9, var(--mint));
+[data-variant="professional"]::before {
+    background: linear-gradient(90deg, #0ea5e9, var(--mint));
 }
 
-.template-row[data-variant="it"]::before {
-  background: linear-gradient(90deg, #2c5282, #4299e1);
+[data-variant="it"]::before {
+    background: linear-gradient(90deg, #2c5282, #4299e1);
 }
 
 .template-row-content {
@@ -846,7 +846,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 20000;
   padding: 20px;
 }
 
@@ -954,20 +954,34 @@ body {
 
 .crop-container {
   position: relative;
-  width: 100%;
+  width: fit-content;
   max-width: 500px;
+  max-height: 60vh;
   overflow: hidden;
   border-radius: 8px;
   background: #000;
   display: inline-block;
+  touch-action: none;
+  user-select: none;
 }
 
 .crop-image {
   display: block;
-  max-width: 100%;
+  max-width: min(100%, 500px);
   height: auto;
   max-height: 60vh;
   object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  touch-action: none;
+}
+
+.crop-overlay {
+  touch-action: none;
+}
+
+.resize-handle {
+  touch-action: none;
 }
 
 .modal-footer {
@@ -1019,6 +1033,82 @@ body {
 .btn-save:hover {
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
   transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .photo-modal-overlay {
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .photo-modal {
+    max-width: none;
+    max-height: none;
+    min-height: 100dvh;
+    border-radius: 0;
+  }
+
+  .modal-header {
+    padding: 12px 14px;
+  }
+
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .modal-body {
+    min-height: 0;
+    padding: 12px;
+    justify-content: flex-start;
+  }
+
+  .crop-container {
+    max-width: 100%;
+    max-height: calc(100dvh - 180px);
+    border-radius: 10px;
+  }
+
+  .crop-image {
+    max-width: 100%;
+    max-height: calc(100dvh - 180px);
+  }
+
+  .resize-handle {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .resize-handle.nw {
+    top: -12px !important;
+    left: -12px !important;
+  }
+
+  .resize-handle.ne {
+    top: -12px !important;
+    right: -12px !important;
+  }
+
+  .resize-handle.sw {
+    bottom: -12px !important;
+    left: -12px !important;
+  }
+
+  .resize-handle.se {
+    bottom: -12px !important;
+    right: -12px !important;
+  }
+
+  .modal-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .modal-footer button {
+    flex: 1 1 140px;
+    min-height: 44px;
+    padding: 10px 12px;
+  }
 }
 
 /* Обновляем стили avatar-placeholder для всех шаблонов */
